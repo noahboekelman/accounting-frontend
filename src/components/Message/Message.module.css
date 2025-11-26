@@ -1,0 +1,37 @@
+.row {
+  display: flex;
+  margin-bottom: 12px;
+}
+.user {
+  justify-content: flex-end;
+}
+.agent {
+  justify-content: flex-start;
+}
+.bubble {
+  max-width: 72%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #0f1720; /* panel */
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 4px 14px rgba(2,6,23,0.6);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+  color: #c9d1d9;
+  line-height: 1.4;
+}
+.user .bubble {
+  background: var(--primary); /* use theme primary color */
+  color: white;
+  border: none;
+}
+.row { margin-bottom: 14px; }
+.bubble { margin-right: 6px; margin-left: 6px; }
+.text {
+  white-space: pre-wrap;
+}
+.ts {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+}
