@@ -1,4 +1,5 @@
-import { on } from "events";
+import { Chunk } from "@/components/Chat/Chat";
+import { getThreadIdFromSessionStorage, setThreadIdToSessionStorage } from "@/lib/utils";
 
 type Message = {
   role: "system" | "user" | "assistant";
@@ -15,7 +16,7 @@ export async function callTriage(
   _messages: Message[],
   // callbacks
   onTodo: (data: string) => void,
-  onChunk: (data: string) => void,
+  onChunk: (data: Chunk) => void,
   onCurrentTask: (data: string) => void,
   onTaskDone: (data: string) => void
 ) {
@@ -24,13 +25,25 @@ export async function callTriage(
     return { cancel: () => {} };
   }
 
-  const url = `${API_BASE}/stream`;
-  const es = new EventSource(url);
+  const url = `${API_BASE}/stream-llm-response`;
+  // Send query param
+  const queryParams = new URLSearchParams();
+  queryParams.append("query", _messages[_messages.length - 1].content);
+  const threadId = getThreadIdFromSessionStorage();
+  if (threadId) {
+    queryParams.append("thread_id", threadId);
+  }
+  const urlWithParams = `${url}?${queryParams.toString()}`;
+  const es = new EventSource(urlWithParams);
 
   const onAssistantChunk = (e: MessageEvent) => {
+    console.log("Received assistant_chunk event", e);
     try {
       const type = e.type;
-      const data = e.data;
+      const data = JSON.parse(e.data);
+      if (data.metadata && data.metadata.thread_id) {
+        setThreadIdToSessionStorage(data.metadata.thread_id);
+      }
       if (type === "done") {
         try {
           es.close();

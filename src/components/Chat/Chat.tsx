@@ -20,6 +20,16 @@ export type TodoItem = {
   done?: boolean;
 };
 
+export type ChunkMetadata = {
+  thread_id: string;
+}
+
+export type Chunk = {
+  type: string;
+  content: string;
+  metadata: ChunkMetadata;
+}
+
 export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -61,9 +71,9 @@ export default function Chat() {
     }
   }
 
-  function appendAgentChunk(id: string, chunk: string) {
+  function appendAgentChunk(id: string, chunk: Chunk) {
     setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, text: m.text + chunk } : m))
+      prev.map((m) => (m.id === id ? { ...m, text: m.text + chunk.content } : m))
     );
     // ensure we scroll to show the latest chunk; schedule to let DOM update
     setTimeout(() => scrollToBottom(), 0);
@@ -106,6 +116,8 @@ export default function Chat() {
 
     const onTodo = (data: string) => {
       try {
+        // Piece
+        data = data.replace("Updated todo list to ", "");
         const ev = JSON.parse(data);
         const tasks = ev.tasks.map((t: any) => ({
           id: Number(t.id),
@@ -164,7 +176,7 @@ export default function Chat() {
       setCurrentTaskId(null);
     };
 
-    const onChunk = (data: string) => {
+    const onChunk = (data: Chunk) => {
       try {
         if (data) appendAgentChunk(agentId, data);
       } catch (err) {
@@ -181,7 +193,7 @@ export default function Chat() {
     );
 
     if (!result) {
-      appendAgentChunk(agentId, "\n[Triage error: no response]");
+      appendAgentChunk(agentId, { type: "error", content: "\n\n[Error receiving response]", metadata: { thread_id: "" } });
       return;
     }
 
