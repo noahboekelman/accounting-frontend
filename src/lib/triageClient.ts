@@ -37,7 +37,6 @@ export async function callTriage(
   const es = new EventSource(urlWithParams);
 
   const onAssistantChunk = (e: MessageEvent) => {
-    console.log("Received assistant_chunk event", e);
     try {
       const type = e.type;
       const data = JSON.parse(e.data);

@@ -119,13 +119,15 @@ export default function Chat() {
         // Piece
         data = data.replace("Updated todo list to ", "");
         const ev = JSON.parse(data);
-        const tasks = ev.tasks.map((t: any) => ({
-          id: Number(t.id),
-          title: String(t.title ?? t.name ?? ""),
-          done: !!t.done,
+        // Convert Python-style single quotes to JSON double quotes
+        const normalizedContent = ev?.content.replace(/'/g, '"');
+        const content = JSON.parse(normalizedContent);
+        const tasks = content.map((t: any, index: number) => ({
+          id: String(index + 1),
+          title: String(t.title ?? t.content ?? t.name ?? ""),
+          done: t.status === "completed" || t.status === "done" || !!t.done,
         }));
         todoRef.current = tasks;
-        console.log("Updated todo state: ", tasks);
       } catch (err) {
         console.warn("Failed to parse todo_list event", err);
       }
