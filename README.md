@@ -2,7 +2,17 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+First, set up your environment variables:
+
+```bash
+# Copy the example environment file
+cp .env.local.example .env.local
+
+# Edit .env.local and set your backend API URL
+# NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
@@ -16,9 +26,41 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Authentication
+- **Modern Login Page**: Beautiful dark-themed login page with gradient effects
+- **JWT Authentication**: Secure JWT-based authentication with access and refresh tokens
+- **Auto Token Refresh**: Automatic token refresh on 401 responses via HTTP interceptor
+- **Protected Routes**: Authentication context for managing user state across the app
+
+### HTTP Client
+The app includes a robust HTTP client (`src/lib/httpClient.ts`) with:
+- Automatic token management (access and refresh tokens)
+- 401 interceptor that automatically refreshes tokens
+- Retry logic for failed requests after token refresh
+- Type-safe API calls with TypeScript
+
+### Architecture
+```
+src/
+├── app/
+│   ├── login/          # Login page with dark theme
+│   └── page.tsx        # Home page with auth check
+├── lib/
+│   ├── httpClient.ts   # HTTP client with token refresh
+│   ├── auth/
+│   │   └── AuthContext.tsx  # Auth state management
+│   └── types/
+│       └── auth.ts     # TypeScript types for auth
+```
+
+## API Integration
+
+The app integrates with the backend API defined in `backend_openapi.json`. Key endpoints:
+- `POST /auth/login` - Login with username/password
+- `POST /auth/refresh` - Refresh access token
+- `POST /auth/fresh-login` - Get fresh token for sensitive operations
 
 ## Learn More
 

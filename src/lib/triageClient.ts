@@ -1,16 +1,18 @@
 import { Chunk } from "@/components/Chat/Chat";
 import { getThreadIdFromSessionStorage, setThreadIdToSessionStorage } from "@/lib/utils";
+import httpClient from "@/lib/httpClient";
 
 type Message = {
   role: "system" | "user" | "assistant";
   content: string;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
-
 /**
  * Very small SSE client tailored to your /stream GET that emits 'assistant_chunk' events.
  * Signature kept compatible with existing callers (messages param is ignored for this GET-based stream).
+ * 
+ * Note: EventSource doesn't support custom headers or error handling for auth.
+ * We verify/refresh auth before opening the connection to ensure valid cookies.
  */
 export async function callTriage(
   _messages: Message[],
@@ -25,7 +27,19 @@ export async function callTriage(
     return { cancel: () => {} };
   }
 
-  const url = `${API_BASE}/stream-llm-response`;
+  // Verify authentication and refresh token if needed before opening SSE connection
+  // This ensures we have valid cookies for the EventSource request
+  try {
+    await httpClient.get('/auth/me');
+  } catch (error) {
+    console.error('Authentication check failed before SSE connection:', error);
+    throw new Error('Authentication required for streaming');
+  }
+
+  // Build URL using the same base as httpClient
+  const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  const url = `${baseURL}/stream-llm-response`;
+  
   // Send query param
   const queryParams = new URLSearchParams();
   queryParams.append("query", _messages[_messages.length - 1].content);
@@ -34,7 +48,10 @@ export async function callTriage(
     queryParams.append("thread_id", threadId);
   }
   const urlWithParams = `${url}?${queryParams.toString()}`;
-  const es = new EventSource(urlWithParams);
+  
+  const es = new EventSource(urlWithParams, {
+    withCredentials: true,
+  });
 
   const onAssistantChunk = (e: MessageEvent) => {
     try {
