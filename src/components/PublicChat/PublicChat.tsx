@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { streamFaqChat, FaqChatChunk } from '@/lib/faqChatClient';
-import styles from './PublicChat.module.css';
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { streamFaqChat, FaqChatChunk } from "@/lib/faqChatClient";
+import styles from "./PublicChat.module.css";
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
 }
 
@@ -19,7 +19,7 @@ const FAQ_QUESTIONS = [
 
 export default function PublicChat() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [showFAQs, setShowFAQs] = useState(true);
@@ -28,7 +28,7 @@ export default function PublicChat() {
   const router = useRouter();
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -42,15 +42,15 @@ export default function PublicChat() {
     setShowFAQs(false);
 
     // Add user message
-    const userMessage: Message = { role: 'user', content: message };
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
+    const userMessage: Message = { role: "user", content: message };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
     setIsStreaming(true);
 
     // Prepare for assistant response
-    let assistantContent = '';
-    const assistantMessage: Message = { role: 'assistant', content: '' };
-    setMessages(prev => [...prev, assistantMessage]);
+    let assistantContent = "";
+    const assistantMessage: Message = { role: "assistant", content: "" };
+    setMessages((prev) => [...prev, assistantMessage]);
 
     try {
       const stream = await streamFaqChat(
@@ -58,11 +58,11 @@ export default function PublicChat() {
         conversationId,
         (chunk: FaqChatChunk) => {
           assistantContent += chunk.content;
-          setMessages(prev => {
+          setMessages((prev) => {
             const newMessages = [...prev];
             newMessages[newMessages.length - 1] = {
-              role: 'assistant',
-              content: assistantContent
+              role: "assistant",
+              content: assistantContent,
             };
             return newMessages;
           });
@@ -73,12 +73,12 @@ export default function PublicChat() {
           }
         },
         (error) => {
-          console.error('Streaming error:', error);
-          setMessages(prev => {
+          console.error("Streaming error:", error);
+          setMessages((prev) => {
             const newMessages = [...prev];
             newMessages[newMessages.length - 1] = {
-              role: 'assistant',
-              content: 'Sorry, I encountered an error. Please try again.'
+              role: "assistant",
+              content: "Sorry, I encountered an error. Please try again.",
             };
             return newMessages;
           });
@@ -87,12 +87,13 @@ export default function PublicChat() {
 
       cancelRef.current = stream;
     } catch (error) {
-      console.error('Failed to start stream:', error);
-      setMessages(prev => {
+      console.error("Failed to start stream:", error);
+      setMessages((prev) => {
         const newMessages = [...prev];
         newMessages[newMessages.length - 1] = {
-          role: 'assistant',
-          content: 'Sorry, I could not connect to the chat service. Please try again later.'
+          role: "assistant",
+          content:
+            "Sorry, I could not connect to the chat service. Please try again later.",
         };
         return newMessages;
       });
@@ -118,12 +119,20 @@ export default function PublicChat() {
           <span className={styles.logoIcon}>💼</span>
           <span className={styles.logoText}>Accounting</span>
         </div>
-        <button 
-          onClick={() => router.push('/login')}
-          className={styles.signInButton}
-        >
-          Sign In
-        </button>
+        <div className={styles.headerActions}>
+          <button
+            onClick={() => router.push("/register")}
+            className={styles.registerButton}
+          >
+            Register
+          </button>
+          <button
+            onClick={() => router.push("/login")}
+            className={styles.signInButton}
+          >
+            Sign In
+          </button>
+        </div>
       </header>
 
       <div className={styles.chatContent}>
@@ -161,13 +170,15 @@ export default function PublicChat() {
             <div
               key={index}
               className={`${styles.message} ${
-                message.role === 'user' ? styles.userMessage : styles.assistantMessage
+                message.role === "user"
+                  ? styles.userMessage
+                  : styles.assistantMessage
               }`}
             >
               {message.content}
             </div>
           ))}
-          {isStreaming && messages[messages.length - 1]?.content === '' && (
+          {isStreaming && messages[messages.length - 1]?.content === "" && (
             <div className={styles.typingIndicator}>
               <div className={styles.dot}></div>
               <div className={styles.dot}></div>
@@ -191,7 +202,7 @@ export default function PublicChat() {
             disabled={!input.trim() || isStreaming}
             className={styles.sendButton}
           >
-            {isStreaming ? 'Sending...' : 'Send'}
+            {isStreaming ? "Sending..." : "Send"}
           </button>
         </form>
       </div>

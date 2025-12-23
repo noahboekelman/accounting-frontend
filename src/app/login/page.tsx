@@ -1,28 +1,41 @@
-'use client';
+"use client";
 
-import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth/AuthContext';
-import styles from './Login.module.css';
+import { useState, FormEvent, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/lib/auth/AuthContext";
+import styles from "./Login.module.css";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
+
+  useEffect(() => {
+    const message = searchParams.get("message");
+    if (message) {
+      setSuccessMessage(message);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
       await login({ username, password });
-      router.push('/');
+      router.push("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Login failed. Please check your credentials."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -38,6 +51,13 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          {successMessage && (
+            <div className={styles.success}>
+              <span>✅</span>
+              <span>{successMessage}</span>
+            </div>
+          )}
+
           {error && (
             <div className={styles.error}>
               <span>⚠️</span>
@@ -79,17 +99,17 @@ export default function LoginPage() {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={styles.submitButton}
             disabled={isLoading}
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
         <div className={styles.footer}>
-          Don&apos;t have an account?{' '}
+          Don&apos;t have an account?{" "}
           <a href="/register" className={styles.footerLink}>
             Sign up
           </a>
