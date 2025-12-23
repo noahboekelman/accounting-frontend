@@ -76,6 +76,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (userData: UserCreateRequest) => {
     try {
       await userApi.createUser(userData);
+
+      // Auto-login after successful registration
+      await login({ username: userData.username, password: userData.password });
     } catch (error) {
       console.error("Registration failed:", error);
       throw error;

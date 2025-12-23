@@ -61,8 +61,8 @@ export default function RegisterPage() {
 
       await register(userData);
 
-      // Registration successful, redirect to login
-      router.push("/login?message=Registration successful! Please log in.");
+      // Registration and auto-login successful, redirect to create company page
+      router.push("/create-company");
     } catch (err: any) {
       setError(err.message);
     } finally {
