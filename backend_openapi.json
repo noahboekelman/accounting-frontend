@@ -15,9 +15,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -26,9 +24,7 @@
     },
     "/auth/login": {
       "post": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Login",
         "description": "Standard login endpoint with username/email and password.\nReturns fresh access token and refresh token.",
         "operationId": "login_auth_login_post",
@@ -68,9 +64,7 @@
     },
     "/auth/refresh": {
       "post": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Refresh",
         "description": "Refresh endpoint - exchange a valid refresh token for a new access token.\nThe new access token will be marked as non-fresh.",
         "operationId": "refresh_auth_refresh_post",
@@ -90,9 +84,7 @@
     },
     "/auth/fresh-login": {
       "post": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Fresh Login",
         "description": "Fresh login endpoint for re-authentication.\nUsed when a fresh token is required for sensitive operations.\nOnly returns a new access token (doesn't generate new refresh token).",
         "operationId": "fresh_login_auth_fresh_login_post",
@@ -132,9 +124,7 @@
     },
     "/auth/logout": {
       "delete": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Logout",
         "description": "Logout endpoint - revokes the current access token.\nFor complete logout, client should also call /logout-refresh.",
         "operationId": "logout_auth_logout_delete",
@@ -143,9 +133,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -154,9 +142,7 @@
     },
     "/auth/logout-refresh": {
       "delete": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Logout Refresh",
         "description": "Revoke refresh token endpoint.\nCall this along with /logout for complete logout.",
         "operationId": "logout_refresh_auth_logout_refresh_delete",
@@ -165,9 +151,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -176,9 +160,7 @@
     },
     "/auth/me": {
       "get": {
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "summary": "Read Users Me",
         "description": "Get current authenticated user.\nRequires valid access token (fresh or non-fresh).",
         "operationId": "read_users_me_auth_me_get",
@@ -199,14 +181,34 @@
     "/fortnox/login": {
       "get": {
         "summary": "Login",
+        "description": "Initiate Fortnox OAuth flow by redirecting to authorization URL.",
         "operationId": "login_fortnox_login_get",
+        "parameters": [
+          {
+            "name": "frontend_url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Frontend Url"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
                 "schema": {
-
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -217,6 +219,7 @@
     "/fortnox/callback": {
       "get": {
         "summary": "Callback",
+        "description": "Handle OAuth callback from Fortnox.",
         "operationId": "callback_fortnox_callback_get",
         "parameters": [
           {
@@ -243,9 +246,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -265,15 +266,14 @@
     "/fortnox/test-customers": {
       "get": {
         "summary": "Test Call",
+        "description": "Test endpoint to fetch customers from Fortnox API.",
         "operationId": "test_call_fortnox_test_customers_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -310,9 +310,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           },
@@ -331,9 +329,7 @@
     },
     "/users/": {
       "get": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Get Users",
         "operationId": "get_users_users__get",
         "parameters": [
@@ -386,9 +382,7 @@
         }
       },
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Create User",
         "operationId": "create_user_users__post",
         "requestBody": {
@@ -427,9 +421,7 @@
     },
     "/users/{user_id}": {
       "get": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Get User",
         "operationId": "get_user_users__user_id__get",
         "parameters": [
@@ -468,9 +460,7 @@
         }
       },
       "put": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Update User",
         "operationId": "update_user_users__user_id__put",
         "parameters": [
@@ -519,9 +509,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Delete User",
         "operationId": "delete_user_users__user_id__delete",
         "parameters": [
@@ -555,9 +543,7 @@
     },
     "/companies/": {
       "get": {
-        "tags": [
-          "companies"
-        ],
+        "tags": ["companies"],
         "summary": "Get Companies",
         "operationId": "get_companies_companies__get",
         "parameters": [
@@ -610,9 +596,7 @@
         }
       },
       "post": {
-        "tags": [
-          "companies"
-        ],
+        "tags": ["companies"],
         "summary": "Create Company",
         "operationId": "create_company_companies__post",
         "requestBody": {
@@ -651,9 +635,7 @@
     },
     "/companies/{company_id}": {
       "get": {
-        "tags": [
-          "companies"
-        ],
+        "tags": ["companies"],
         "summary": "Get Company",
         "operationId": "get_company_companies__company_id__get",
         "parameters": [
@@ -692,9 +674,7 @@
         }
       },
       "put": {
-        "tags": [
-          "companies"
-        ],
+        "tags": ["companies"],
         "summary": "Update Company",
         "operationId": "update_company_companies__company_id__put",
         "parameters": [
@@ -743,9 +723,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "companies"
-        ],
+        "tags": ["companies"],
         "summary": "Delete Company",
         "operationId": "delete_company_companies__company_id__delete",
         "parameters": [
@@ -779,9 +757,7 @@
     },
     "/companies/org/{organization_number}": {
       "get": {
-        "tags": [
-          "companies"
-        ],
+        "tags": ["companies"],
         "summary": "Get Company By Org Number",
         "operationId": "get_company_by_org_number_companies_org__organization_number__get",
         "parameters": [
@@ -821,9 +797,7 @@
     },
     "/company-users/": {
       "get": {
-        "tags": [
-          "company-users"
-        ],
+        "tags": ["company-users"],
         "summary": "Get Company Users",
         "operationId": "get_company_users_company_users__get",
         "parameters": [
@@ -876,9 +850,7 @@
         }
       },
       "post": {
-        "tags": [
-          "company-users"
-        ],
+        "tags": ["company-users"],
         "summary": "Create Company User",
         "operationId": "create_company_user_company_users__post",
         "requestBody": {
@@ -917,9 +889,7 @@
     },
     "/company-users/{company_user_id}": {
       "get": {
-        "tags": [
-          "company-users"
-        ],
+        "tags": ["company-users"],
         "summary": "Get Company User",
         "operationId": "get_company_user_company_users__company_user_id__get",
         "parameters": [
@@ -958,9 +928,7 @@
         }
       },
       "put": {
-        "tags": [
-          "company-users"
-        ],
+        "tags": ["company-users"],
         "summary": "Update Company User",
         "operationId": "update_company_user_company_users__company_user_id__put",
         "parameters": [
@@ -1009,9 +977,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "company-users"
-        ],
+        "tags": ["company-users"],
         "summary": "Delete Company User",
         "operationId": "delete_company_user_company_users__company_user_id__delete",
         "parameters": [
@@ -1045,9 +1011,7 @@
     },
     "/company-users/company/{company_id}": {
       "get": {
-        "tags": [
-          "company-users"
-        ],
+        "tags": ["company-users"],
         "summary": "Get Users By Company",
         "operationId": "get_users_by_company_company_users_company__company_id__get",
         "parameters": [
@@ -1092,9 +1056,7 @@
     },
     "/company-users/user/{user_id}": {
       "get": {
-        "tags": [
-          "company-users"
-        ],
+        "tags": ["company-users"],
         "summary": "Get Companies By User",
         "operationId": "get_companies_by_user_company_users_user__user_id__get",
         "parameters": [
@@ -1139,9 +1101,7 @@
     },
     "/company-integrations/": {
       "get": {
-        "tags": [
-          "company-integrations"
-        ],
+        "tags": ["company-integrations"],
         "summary": "Get Integrations",
         "operationId": "get_integrations_company_integrations__get",
         "parameters": [
@@ -1194,9 +1154,7 @@
         }
       },
       "post": {
-        "tags": [
-          "company-integrations"
-        ],
+        "tags": ["company-integrations"],
         "summary": "Create Integration",
         "operationId": "create_integration_company_integrations__post",
         "requestBody": {
@@ -1235,9 +1193,7 @@
     },
     "/company-integrations/{integration_id}": {
       "get": {
-        "tags": [
-          "company-integrations"
-        ],
+        "tags": ["company-integrations"],
         "summary": "Get Integration",
         "operationId": "get_integration_company_integrations__integration_id__get",
         "parameters": [
@@ -1276,9 +1232,7 @@
         }
       },
       "put": {
-        "tags": [
-          "company-integrations"
-        ],
+        "tags": ["company-integrations"],
         "summary": "Update Integration",
         "operationId": "update_integration_company_integrations__integration_id__put",
         "parameters": [
@@ -1327,9 +1281,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "company-integrations"
-        ],
+        "tags": ["company-integrations"],
         "summary": "Delete Integration",
         "operationId": "delete_integration_company_integrations__integration_id__delete",
         "parameters": [
@@ -1363,9 +1315,7 @@
     },
     "/company-integrations/company/{company_id}": {
       "get": {
-        "tags": [
-          "company-integrations"
-        ],
+        "tags": ["company-integrations"],
         "summary": "Get Integrations By Company",
         "operationId": "get_integrations_by_company_company_integrations_company__company_id__get",
         "parameters": [
@@ -1410,9 +1360,7 @@
     },
     "/company-integrations/company/{company_id}/provider/{provider}": {
       "get": {
-        "tags": [
-          "company-integrations"
-        ],
+        "tags": ["company-integrations"],
         "summary": "Get Integration By Company And Provider",
         "operationId": "get_integration_by_company_and_provider_company_integrations_company__company_id__provider__provider__get",
         "parameters": [
@@ -1461,9 +1409,7 @@
     },
     "/company-invitations/": {
       "get": {
-        "tags": [
-          "company-invitations"
-        ],
+        "tags": ["company-invitations"],
         "summary": "Get Invitations",
         "operationId": "get_invitations_company_invitations__get",
         "parameters": [
@@ -1516,9 +1462,7 @@
         }
       },
       "post": {
-        "tags": [
-          "company-invitations"
-        ],
+        "tags": ["company-invitations"],
         "summary": "Create Invitation",
         "operationId": "create_invitation_company_invitations__post",
         "requestBody": {
@@ -1557,9 +1501,7 @@
     },
     "/company-invitations/{invitation_id}": {
       "get": {
-        "tags": [
-          "company-invitations"
-        ],
+        "tags": ["company-invitations"],
         "summary": "Get Invitation",
         "operationId": "get_invitation_company_invitations__invitation_id__get",
         "parameters": [
@@ -1598,9 +1540,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "company-invitations"
-        ],
+        "tags": ["company-invitations"],
         "summary": "Delete Invitation",
         "operationId": "delete_invitation_company_invitations__invitation_id__delete",
         "parameters": [
@@ -1634,9 +1574,7 @@
     },
     "/company-invitations/token/{token}": {
       "get": {
-        "tags": [
-          "company-invitations"
-        ],
+        "tags": ["company-invitations"],
         "summary": "Get Invitation By Token",
         "operationId": "get_invitation_by_token_company_invitations_token__token__get",
         "parameters": [
@@ -1676,9 +1614,7 @@
     },
     "/company-invitations/company/{company_id}": {
       "get": {
-        "tags": [
-          "company-invitations"
-        ],
+        "tags": ["company-invitations"],
         "summary": "Get Invitations By Company",
         "operationId": "get_invitations_by_company_company_invitations_company__company_id__get",
         "parameters": [
@@ -1723,9 +1659,7 @@
     },
     "/company-invitations/email/{email}": {
       "get": {
-        "tags": [
-          "company-invitations"
-        ],
+        "tags": ["company-invitations"],
         "summary": "Get Invitations By Email",
         "operationId": "get_invitations_by_email_company_invitations_email__email__get",
         "parameters": [
@@ -1769,9 +1703,7 @@
     },
     "/company-invitations/cleanup": {
       "post": {
-        "tags": [
-          "company-invitations"
-        ],
+        "tags": ["company-invitations"],
         "summary": "Cleanup Expired Invitations",
         "operationId": "cleanup_expired_invitations_company_invitations_cleanup_post",
         "responses": {
@@ -1792,9 +1724,7 @@
     },
     "/audit-logs/": {
       "get": {
-        "tags": [
-          "audit-logs"
-        ],
+        "tags": ["audit-logs"],
         "summary": "Get Audit Logs",
         "operationId": "get_audit_logs_audit_logs__get",
         "parameters": [
@@ -1847,9 +1777,7 @@
         }
       },
       "post": {
-        "tags": [
-          "audit-logs"
-        ],
+        "tags": ["audit-logs"],
         "summary": "Create Audit Log",
         "operationId": "create_audit_log_audit_logs__post",
         "requestBody": {
@@ -1888,9 +1816,7 @@
     },
     "/audit-logs/{audit_log_id}": {
       "get": {
-        "tags": [
-          "audit-logs"
-        ],
+        "tags": ["audit-logs"],
         "summary": "Get Audit Log",
         "operationId": "get_audit_log_audit_logs__audit_log_id__get",
         "parameters": [
@@ -1931,9 +1857,7 @@
     },
     "/audit-logs/company/{company_id}": {
       "get": {
-        "tags": [
-          "audit-logs"
-        ],
+        "tags": ["audit-logs"],
         "summary": "Get Audit Logs By Company",
         "operationId": "get_audit_logs_by_company_audit_logs_company__company_id__get",
         "parameters": [
@@ -1998,9 +1922,7 @@
     },
     "/audit-logs/user/{user_id}": {
       "get": {
-        "tags": [
-          "audit-logs"
-        ],
+        "tags": ["audit-logs"],
         "summary": "Get Audit Logs By User",
         "operationId": "get_audit_logs_by_user_audit_logs_user__user_id__get",
         "parameters": [
@@ -2079,9 +2001,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "access_token"
-        ],
+        "required": ["access_token"],
         "title": "AccessTokenResponse",
         "description": "Access token only response"
       },
@@ -2111,10 +2031,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "company_id",
-          "action"
-        ],
+        "required": ["company_id", "action"],
         "title": "AuditLogCreate"
       },
       "AuditLogResponse": {
@@ -2153,12 +2070,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "company_id",
-          "action",
-          "id",
-          "created_at"
-        ],
+        "required": ["company_id", "action", "id", "created_at"],
         "title": "AuditLogResponse"
       },
       "CompanyCreate": {
@@ -2182,9 +2094,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "title": "CompanyCreate"
       },
       "CompanyIntegrationCreate": {
@@ -2259,10 +2169,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "company_id",
-          "provider"
-        ],
+        "required": ["company_id", "provider"],
         "title": "CompanyIntegrationCreate"
       },
       "CompanyIntegrationResponse": {
@@ -2430,13 +2337,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "company_id",
-          "email",
-          "role",
-          "token",
-          "expires_at"
-        ],
+        "required": ["company_id", "email", "role", "token", "expires_at"],
         "title": "CompanyInvitationCreate"
       },
       "CompanyInvitationResponse": {
@@ -2524,22 +2425,12 @@
           }
         },
         "type": "object",
-        "required": [
-          "name",
-          "id",
-          "created_at",
-          "updated_at"
-        ],
+        "required": ["name", "id", "created_at", "updated_at"],
         "title": "CompanyResponse"
       },
       "CompanyRole": {
         "type": "string",
-        "enum": [
-          "OWNER",
-          "ADMIN",
-          "MEMBER",
-          "VIEWER"
-        ],
+        "enum": ["OWNER", "ADMIN", "MEMBER", "VIEWER"],
         "title": "CompanyRole",
         "description": "Company role enumeration"
       },
@@ -2590,11 +2481,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "company_id",
-          "user_id",
-          "role"
-        ],
+        "required": ["company_id", "user_id", "role"],
         "title": "CompanyUserCreate"
       },
       "CompanyUserResponse": {
@@ -2624,13 +2511,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "company_id",
-          "user_id",
-          "role",
-          "id",
-          "created_at"
-        ],
+        "required": ["company_id", "user_id", "role", "id", "created_at"],
         "title": "CompanyUserResponse"
       },
       "CompanyUserUpdate": {
@@ -2640,9 +2521,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "role"
-        ],
+        "required": ["role"],
         "title": "CompanyUserUpdate"
       },
       "HTTPValidationError": {
@@ -2660,9 +2539,7 @@
       },
       "IntegrationProvider": {
         "type": "string",
-        "enum": [
-          "FORTNOX"
-        ],
+        "enum": ["FORTNOX"],
         "title": "IntegrationProvider",
         "description": "Integration provider enumeration"
       },
@@ -2678,10 +2555,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "username",
-          "password"
-        ],
+        "required": ["username", "password"],
         "title": "LoginRequest",
         "description": "Login request body"
       },
@@ -2702,10 +2576,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "access_token",
-          "refresh_token"
-        ],
+        "required": ["access_token", "refresh_token"],
         "title": "TokenResponse",
         "description": "Token response"
       },
@@ -2733,11 +2604,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email",
-          "username",
-          "password"
-        ],
+        "required": ["email", "username", "password"],
         "title": "UserCreate"
       },
       "UserResponse": {
@@ -2790,10 +2657,7 @@
       },
       "UserRole": {
         "type": "string",
-        "enum": [
-          "ADMIN",
-          "USER"
-        ],
+        "enum": ["ADMIN", "USER"],
         "title": "UserRole",
         "description": "User role enumeration"
       },
@@ -2887,11 +2751,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError"
       }
     }
