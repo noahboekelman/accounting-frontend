@@ -54,6 +54,12 @@ export default function Home() {
           </div>
           <div className={styles.headerActions}>
             <button
+              onClick={() => window.open("/companies", "_self")}
+              className={styles.companiesButton}
+            >
+              Companies
+            </button>
+            <button
               onClick={() =>
                 window.open("/integrations/choose-provider", "_self")
               }

@@ -221,6 +221,28 @@
   transform: translateY(0);
 }
 
+.companiesButton {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  border: none;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.companiesButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+.companiesButton:active {
+  transform: translateY(0);
+}
+
 .logoutButton {
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
@@ -371,6 +393,7 @@
   }
 
   .addIntegrationButton,
+  .companiesButton,
   .logoutButton {
     width: 100%;
     justify-content: center;
