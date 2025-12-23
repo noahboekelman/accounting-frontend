@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useAuth } from "@/lib/auth/AuthContext";
 import Chat from "@/components/Chat";
@@ -31,9 +31,19 @@ export default function Home() {
             <span className={styles.logoIcon}>💼</span>
             <span className={styles.logoText}>Accounting</span>
           </div>
-          <button onClick={logout} className={styles.logoutButton}>
-            Sign Out
-          </button>
+          <div className={styles.headerActions}>
+            <button
+              onClick={() =>
+                window.open("/integrations/choose-provider", "_self")
+              }
+              className={styles.addIntegrationButton}
+            >
+              Add Integration
+            </button>
+            <button onClick={logout} className={styles.logoutButton}>
+              Sign Out
+            </button>
+          </div>
         </div>
       </header>
       <main className={styles.mainContent}>
@@ -42,4 +52,3 @@ export default function Home() {
     </div>
   );
 }
-
