@@ -24,7 +24,7 @@ const providers: Provider[] = [
 export default function ChooseProviderPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, selectedCompany } = useAuth();
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -53,6 +53,11 @@ export default function ChooseProviderPage() {
       return;
     }
 
+    if (!selectedCompany) {
+      setError("Please select a company first before setting up integrations");
+      return;
+    }
+
     setLoading(providerId);
     setError(null);
 
@@ -64,7 +69,7 @@ export default function ChooseProviderPage() {
     window.open(
       `${backendUrl}/fortnox/login?frontend_url=${encodeURIComponent(
         frontendCallbackUrl
-      )}`,
+      )}&company_id=${encodeURIComponent(selectedCompany.id)}`,
       "_self"
     );
   };
@@ -91,6 +96,23 @@ export default function ChooseProviderPage() {
           Select an accounting system to integrate with your account. This will
           allow you to sync your financial data automatically.
         </p>
+
+        {/* Company selection notice */}
+        {!selectedCompany && (
+          <div className={styles.warningMessage}>
+            ⚠️ Please select a company from the{" "}
+            <a href="/companies" style={{ color: "#0066cc" }}>
+              companies page
+            </a>{" "}
+            before setting up integrations.
+          </div>
+        )}
+
+        {selectedCompany && (
+          <div className={styles.infoMessage}>
+            Setting up integration for: <strong>{selectedCompany.name}</strong>
+          </div>
+        )}
 
         {/* Provider grid */}
         <div className={styles.providerGrid}>
