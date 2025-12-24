@@ -1,5 +1,8 @@
 import { Chunk } from "@/components/Chat/Chat";
-import { getThreadIdFromSessionStorage, setThreadIdToSessionStorage } from "@/lib/utils";
+import {
+  getThreadIdFromSessionStorage,
+  setThreadIdToSessionStorage,
+} from "@/lib/utils";
 import httpClient from "@/lib/httpClient";
 
 type Message = {
@@ -10,12 +13,13 @@ type Message = {
 /**
  * Very small SSE client tailored to your /stream GET that emits 'assistant_chunk' events.
  * Signature kept compatible with existing callers (messages param is ignored for this GET-based stream).
- * 
+ *
  * Note: EventSource doesn't support custom headers or error handling for auth.
  * We verify/refresh auth before opening the connection to ensure valid cookies.
  */
 export async function callTriage(
-  _messages: Message[],
+  companyId: string,
+  messages: Message[],
   // callbacks
   onTodo: (data: string) => void,
   onChunk: (data: Chunk) => void,
@@ -30,25 +34,27 @@ export async function callTriage(
   // Verify authentication and refresh token if needed before opening SSE connection
   // This ensures we have valid cookies for the EventSource request
   try {
-    await httpClient.get('/auth/me');
+    await httpClient.get("/auth/me");
   } catch (error) {
-    console.error('Authentication check failed before SSE connection:', error);
-    throw new Error('Authentication required for streaming');
+    console.error("Authentication check failed before SSE connection:", error);
+    throw new Error("Authentication required for streaming");
   }
 
   // Build URL using the same base as httpClient
-  const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  const baseURL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
   const url = `${baseURL}/stream-llm-response`;
-  
+
   // Send query param
   const queryParams = new URLSearchParams();
-  queryParams.append("query", _messages[_messages.length - 1].content);
+  queryParams.append("query", messages[messages.length - 1].content);
+  queryParams.append("company_id", companyId);
   const threadId = getThreadIdFromSessionStorage();
   if (threadId) {
     queryParams.append("thread_id", threadId);
   }
   const urlWithParams = `${url}?${queryParams.toString()}`;
-  
+
   const es = new EventSource(urlWithParams, {
     withCredentials: true,
   });

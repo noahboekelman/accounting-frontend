@@ -6,6 +6,7 @@ import Message from "@components/Message";
 import TodoDropdown from "@components/Todo/Todo";
 import { callTriage } from "@lib/triageClient";
 import type { Message as TriageMessage } from "@lib/triageClient";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 export type ChatMessage = {
   id: string;
@@ -22,13 +23,13 @@ export type TodoItem = {
 
 export type ChunkMetadata = {
   thread_id: string;
-}
+};
 
 export type Chunk = {
   type: string;
   content: string;
   metadata: ChunkMetadata;
-}
+};
 
 export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -38,6 +39,7 @@ export default function Chat() {
   const todoRef = useRef<Array<TodoItem>>([]);
   const [todoOpen, setTodoOpen] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState<number | null>(null);
+  const { selectedCompany } = useAuth();
 
   useEffect(() => {
     // initial welcome
@@ -73,7 +75,9 @@ export default function Chat() {
 
   function appendAgentChunk(id: string, chunk: Chunk) {
     setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, text: m.text + chunk.content } : m))
+      prev.map((m) =>
+        m.id === id ? { ...m, text: m.text + chunk.content } : m
+      )
     );
     // ensure we scroll to show the latest chunk; schedule to let DOM update
     setTimeout(() => scrollToBottom(), 0);
@@ -187,6 +191,7 @@ export default function Chat() {
     };
 
     const result = await callTriage(
+      selectedCompany ? selectedCompany.id : "",
       triageMessages,
       onTodo,
       onChunk,
@@ -195,7 +200,11 @@ export default function Chat() {
     );
 
     if (!result) {
-      appendAgentChunk(agentId, { type: "error", content: "\n\n[Error receiving response]", metadata: { thread_id: "" } });
+      appendAgentChunk(agentId, {
+        type: "error",
+        content: "\n\n[Error receiving response]",
+        metadata: { thread_id: "" },
+      });
       return;
     }
 
