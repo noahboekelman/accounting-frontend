@@ -40,6 +40,7 @@ export default function Chat() {
   const [todoOpen, setTodoOpen] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState<number | null>(null);
   const { selectedCompany } = useAuth();
+  const isAutoScrollingRef = useRef(true); // track if user has scrolled up manually
 
   useEffect(() => {
     // initial welcome
@@ -55,8 +56,25 @@ export default function Chat() {
 
   useEffect(() => {
     // scroll to bottom whenever messages change
-    scrollToBottom();
+    if (isAutoScrollingRef.current) {
+      scrollToBottom();
+    }
   }, [messages]);
+
+  useEffect(() => {
+    // Add scroll listener to detect if user scrolls up manually
+    const messagesContainer = listRef.current;
+    if (!messagesContainer) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50; // 50px threshold
+      isAutoScrollingRef.current = isAtBottom;
+    };
+
+    messagesContainer.addEventListener("scroll", handleScroll);
+    return () => messagesContainer.removeEventListener("scroll", handleScroll);
+  }, []);
 
   function scrollToBottom() {
     // prefer using the sentinel for smooth scrolling
@@ -73,18 +91,39 @@ export default function Chat() {
     }
   }
 
+  function scrollToBottomImmediate() {
+    // immediate scroll without smooth behavior for streaming content
+    if (bottomRef.current) {
+      try {
+        bottomRef.current.scrollIntoView({ behavior: "instant", block: "end" });
+        return;
+      } catch (_) {
+        // fallback
+      }
+    }
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }
+
   function appendAgentChunk(id: string, chunk: Chunk) {
     setMessages((prev) =>
       prev.map((m) =>
         m.id === id ? { ...m, text: m.text + chunk.content } : m
       )
     );
-    // ensure we scroll to show the latest chunk; schedule to let DOM update
-    setTimeout(() => scrollToBottom(), 0);
+    // only auto-scroll if user hasn't manually scrolled up
+    if (isAutoScrollingRef.current) {
+      requestAnimationFrame(() => scrollToBottomImmediate());
+    }
   }
 
   async function handleSend(text: string) {
     if (!text.trim()) return;
+
+    // Re-enable auto-scrolling when user sends a new message
+    isAutoScrollingRef.current = true;
+
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       author: "user",
@@ -95,7 +134,7 @@ export default function Chat() {
     setInput("");
 
     // scroll after new user message
-    setTimeout(() => scrollToBottom(), 0);
+    requestAnimationFrame(() => scrollToBottom());
 
     // add placeholder agent message to stream into
     const agentId = `a-${Date.now()}`;
@@ -108,7 +147,7 @@ export default function Chat() {
     setMessages((s) => [...s, agentMsg]);
 
     // scroll to show the agent placeholder
-    setTimeout(() => scrollToBottom(), 0);
+    requestAnimationFrame(() => scrollToBottom());
 
     // prepare messages in triage format
     const triageMessages: TriageMessage[] = messages
@@ -239,6 +278,7 @@ export default function Chat() {
         {messages.map((m) => (
           <Message key={m.id} message={m} />
         ))}
+        <div ref={bottomRef} style={{ height: "1px" }} />
       </div>
 
       <form className={styles.composer} onSubmit={onSubmit}>
