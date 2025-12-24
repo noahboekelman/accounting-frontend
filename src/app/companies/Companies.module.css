@@ -89,6 +89,24 @@
   transform: translateY(-1px);
 }
 
+.selectedCard {
+  border-color: #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.selectedCard:hover {
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+}
+
+.selectedCard {
+  border-color: #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.selectedCard:hover {
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+}
+
 .companyHeader {
   display: flex;
   justify-content: space-between;
@@ -101,6 +119,50 @@
   color: #1f2937;
   font-size: 1.5rem;
   font-weight: 600;
+}
+
+.companyNameRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.companyNameRow h2 {
+  margin: 0;
+}
+
+.selectedBadge {
+  background: #10b981;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.companyNameRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.companyNameRow h2 {
+  margin: 0;
+}
+
+.selectedBadge {
+  background: #10b981;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .orgNumber {
@@ -154,6 +216,49 @@
   background: #2563eb;
 }
 
+.selectButton {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selectButton:hover {
+  background: #059669;
+}
+
+.companyActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.selectButton {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 0.5rem;
+}
+
+.selectButton:hover {
+  background: #059669;
+}
+
+.companyActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .companyDetails {
   border-top: 1px solid #f3f4f6;
   padding-top: 1rem;
@@ -188,6 +293,16 @@
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
+  }
+
+  .companyNameRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .companyActions {
+    justify-content: flex-start;
   }
 
   .companyDetails {

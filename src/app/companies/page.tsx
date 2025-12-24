@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth/AuthContext";
 import httpClient from "@/lib/httpClient";
 import styles from "./Companies.module.css";
 
@@ -27,6 +28,7 @@ interface CompanyWithRole extends CompanyResponse {
 
 export default function CompaniesPage() {
   const router = useRouter();
+  const { selectedCompany, selectCompany } = useAuth();
   const [companies, setCompanies] = useState<CompanyWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +95,16 @@ export default function CompaniesPage() {
     }
   };
 
+  const handleSelectCompany = (company: CompanyWithRole) => {
+    const companyInfo = {
+      id: company.id,
+      name: company.name,
+      organization_number: company.organization_number,
+      userRole: company.userRole,
+    };
+    selectCompany(companyInfo);
+  };
+
   const handleManageCompany = (companyId: string) => {
     // Placeholder for future company management functionality
     console.log("Manage company:", companyId);
@@ -155,44 +167,65 @@ export default function CompaniesPage() {
         </div>
       ) : (
         <div className={styles.companiesList}>
-          {companies.map((company) => (
-            <div key={company.id} className={styles.companyCard}>
-              <div className={styles.companyHeader}>
-                <div className={styles.companyInfo}>
-                  <h2>{company.name}</h2>
-                  {company.organization_number && (
-                    <p className={styles.orgNumber}>
-                      Org. Number: {company.organization_number}
-                    </p>
-                  )}
-                  <span
-                    className={`${styles.roleBadge} ${getRoleBadgeClass(
-                      company.userRole
-                    )}`}
-                  >
-                    Your role: {company.userRole}
-                  </span>
-                </div>
-                <div className={styles.companyActions}>
-                  {company.userRole === "OWNER" && (
-                    <button
-                      className={styles.manageButton}
-                      onClick={() => handleManageCompany(company.id)}
+          {companies.map((company) => {
+            const isSelected = selectedCompany?.id === company.id;
+            return (
+              <div
+                key={company.id}
+                className={`${styles.companyCard} ${
+                  isSelected ? styles.selectedCard : ""
+                }`}
+              >
+                <div className={styles.companyHeader}>
+                  <div className={styles.companyInfo}>
+                    <div className={styles.companyNameRow}>
+                      <h2>{company.name}</h2>
+                      {isSelected && (
+                        <span className={styles.selectedBadge}>Selected</span>
+                      )}
+                    </div>
+                    {company.organization_number && (
+                      <p className={styles.orgNumber}>
+                        Org. Number: {company.organization_number}
+                      </p>
+                    )}
+                    <span
+                      className={`${styles.roleBadge} ${getRoleBadgeClass(
+                        company.userRole
+                      )}`}
                     >
-                      Manage Company
-                    </button>
-                  )}
+                      Your role: {company.userRole}
+                    </span>
+                  </div>
+                  <div className={styles.companyActions}>
+                    {!isSelected && (
+                      <button
+                        className={styles.selectButton}
+                        onClick={() => handleSelectCompany(company)}
+                      >
+                        Select
+                      </button>
+                    )}
+                    {company.userRole === "OWNER" && (
+                      <button
+                        className={styles.manageButton}
+                        onClick={() => handleManageCompany(company.id)}
+                      >
+                        Manage Company
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.companyDetails}>
+                  <p className={styles.createdDate}>
+                    Created: {new Date(company.created_at).toLocaleDateString()}
+                  </p>
+                  <p className={styles.companyId}>Company ID: {company.id}</p>
                 </div>
               </div>
-
-              <div className={styles.companyDetails}>
-                <p className={styles.createdDate}>
-                  Created: {new Date(company.created_at).toLocaleDateString()}
-                </p>
-                <p className={styles.companyId}>Company ID: {company.id}</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

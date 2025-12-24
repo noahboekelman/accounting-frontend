@@ -8,7 +8,7 @@ import PublicChat from "@/components/PublicChat";
 import styles from "./page.module.css";
 
 export default function Home() {
-  const { isAuthenticated, isLoading, logout } = useAuth();
+  const { isAuthenticated, isLoading, logout, selectedCompany } = useAuth();
   const searchParams = useSearchParams();
   const [welcomeMessage, setWelcomeMessage] = useState<string>("");
 
@@ -51,6 +51,11 @@ export default function Home() {
           <div className={styles.logo}>
             <span className={styles.logoIcon}>💼</span>
             <span className={styles.logoText}>Accounting</span>
+            {selectedCompany && (
+              <span className={styles.selectedCompany}>
+                • {selectedCompany.name}
+              </span>
+            )}
           </div>
           <div className={styles.headerActions}>
             <button

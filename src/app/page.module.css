@@ -193,6 +193,13 @@
   background-clip: text;
 }
 
+.selectedCompany {
+  color: #10b981;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
 .headerActions {
   display: flex;
   align-items: center;

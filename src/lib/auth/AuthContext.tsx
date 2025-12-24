@@ -11,12 +11,22 @@ import httpClient from "@/lib/httpClient";
 import userApi, { UserCreateRequest } from "@/lib/userApi";
 import { LoginRequest } from "@/lib/types/auth";
 
+interface CompanyInfo {
+  id: string;
+  name: string;
+  organization_number?: string;
+  userRole: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
+  selectedCompany: CompanyInfo | null;
   login: (credentials: LoginRequest) => Promise<void>;
   register: (userData: UserCreateRequest) => Promise<void>;
   logout: () => Promise<void>;
+  selectCompany: (company: CompanyInfo) => void;
+  clearSelectedCompany: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +39,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     return false;
   });
+
+  const [selectedCompany, setSelectedCompany] = useState<CompanyInfo | null>(
+    () => {
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("selected_company");
+        return saved ? JSON.parse(saved) : null;
+      }
+      return null;
+    }
+  );
+
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -85,6 +106,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const selectCompany = (company: CompanyInfo) => {
+    setSelectedCompany(company);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("selected_company", JSON.stringify(company));
+    }
+  };
+
+  const clearSelectedCompany = () => {
+    setSelectedCompany(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("selected_company");
+    }
+  };
+
   const logout = async () => {
     try {
       // Call both logout endpoints to clear access and refresh tokens on server
@@ -96,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Logout failed:", error);
     } finally {
       setIsAuthenticated(false);
+      clearSelectedCompany();
       if (typeof window !== "undefined") {
         localStorage.removeItem("auth_state");
         window.location.href = "/";
@@ -105,7 +141,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, isLoading, login, register, logout }}
+      value={{
+        isAuthenticated,
+        isLoading,
+        selectedCompany,
+        login,
+        register,
+        logout,
+        selectCompany,
+        clearSelectedCompany,
+      }}
     >
       {children}
     </AuthContext.Provider>
