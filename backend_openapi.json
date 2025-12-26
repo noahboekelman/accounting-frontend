@@ -192,6 +192,15 @@
               "type": "string",
               "title": "Frontend Url"
             }
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Company Id"
+            }
           }
         ],
         "responses": {
@@ -293,6 +302,16 @@
             "schema": {
               "type": "string",
               "title": "Query"
+            }
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Company Id"
             }
           },
           {
@@ -626,6 +645,30 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/companies/my-companies": {
+      "get": {
+        "tags": ["companies"],
+        "summary": "Get My Companies",
+        "description": "Get all companies associated with the current user, including their role",
+        "operationId": "get_my_companies_companies_my_companies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyWithRoleResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get My Companies Companies My Companies Get"
                 }
               }
             }
@@ -1984,6 +2027,119 @@
           }
         }
       }
+    },
+    "/chat-sessions/": {
+      "get": {
+        "tags": ["chat-sessions"],
+        "summary": "Get Chat Sessions",
+        "description": "Get all chat sessions for the current user and specified company",
+        "operationId": "get_chat_sessions_chat_sessions__get",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Company ID to filter sessions",
+              "title": "Company Id"
+            },
+            "description": "Company ID to filter sessions"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Page number",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "Page number"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Items per page",
+              "default": 100,
+              "title": "Limit"
+            },
+            "description": "Items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatSessionListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat-sessions/{session_id}/messages": {
+      "get": {
+        "tags": ["chat-sessions"],
+        "summary": "Get Session Messages",
+        "description": "Get a chat session with all its messages",
+        "operationId": "get_session_messages_chat_sessions__session_id__messages_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatSessionMessagesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2073,6 +2229,121 @@
         "required": ["company_id", "action", "id", "created_at"],
         "title": "AuditLogResponse"
       },
+      "ChatMessageResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "session_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session Id"
+          },
+          "message": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Message"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": ["id", "session_id", "message", "created_at"],
+        "title": "ChatMessageResponse"
+      },
+      "ChatSessionListResponse": {
+        "properties": {
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/ChatSessionResponse"
+            },
+            "type": "array",
+            "title": "Sessions"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": ["sessions", "total"],
+        "title": "ChatSessionListResponse"
+      },
+      "ChatSessionMessagesResponse": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "company_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Id"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/ChatMessageResponse"
+            },
+            "type": "array",
+            "title": "Messages"
+          },
+          "total_messages": {
+            "type": "integer",
+            "title": "Total Messages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "user_id",
+          "company_id",
+          "messages",
+          "total_messages"
+        ],
+        "title": "ChatSessionMessagesResponse"
+      },
+      "ChatSessionResponse": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "company_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Id"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": ["user_id", "company_id", "id", "created_at", "updated_at"],
+        "title": "ChatSessionResponse"
+      },
       "CompanyCreate": {
         "properties": {
           "name": {
@@ -2135,7 +2406,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 2048
+                "maxLength": 8192
               },
               {
                 "type": "null"
@@ -2147,7 +2418,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 2048
+                "maxLength": 8192
               },
               {
                 "type": "null"
@@ -2211,6 +2482,28 @@
             "format": "uuid",
             "title": "Id"
           },
+          "access_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Token"
+          },
+          "refresh_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refresh Token"
+          },
           "expires_at": {
             "anyOf": [
               {
@@ -2239,6 +2532,8 @@
           "company_id",
           "provider",
           "id",
+          "access_token",
+          "refresh_token",
           "created_at",
           "updated_at"
         ],
@@ -2272,7 +2567,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 2048
+                "maxLength": 8192
               },
               {
                 "type": "null"
@@ -2284,7 +2579,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 2048
+                "maxLength": 8192
               },
               {
                 "type": "null"
@@ -2523,6 +2818,49 @@
         "type": "object",
         "required": ["role"],
         "title": "CompanyUserUpdate"
+      },
+      "CompanyWithRoleResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Name"
+          },
+          "organization_number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Organization Number"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "user_role": {
+            "$ref": "#/components/schemas/CompanyRole"
+          }
+        },
+        "type": "object",
+        "required": ["name", "id", "created_at", "updated_at", "user_role"],
+        "title": "CompanyWithRoleResponse",
+        "description": "Response model that includes both company info and user's role"
       },
       "HTTPValidationError": {
         "properties": {
