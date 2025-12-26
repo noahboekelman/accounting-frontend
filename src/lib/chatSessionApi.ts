@@ -46,6 +46,20 @@ class ChatSessionApi {
       }
     );
   }
+
+  /**
+   * Delete a chat session
+   * 
+   * @param sessionId - Session ID to delete
+   */
+  async deleteSession(sessionId: string): Promise<void> {
+    return httpClient.request<void>(
+      `/chat-sessions/${sessionId}`,
+      {
+        method: "DELETE",
+      }
+    );
+  }
 }
 
 export const chatSessionApi = new ChatSessionApi();

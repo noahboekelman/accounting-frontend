@@ -67,14 +67,13 @@
   background: transparent;
   border: 1px solid transparent;
   border-radius: 8px;
-  padding: 12px;
   margin-bottom: 4px;
-  cursor: pointer;
   transition: all 0.2s ease;
-  text-align: left;
-  color: inherit;
-  font: inherit;
-  display: block;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 4px;
 }
 
 .sessionItem:hover {
@@ -85,6 +84,45 @@
 .sessionItem.selected {
   background: rgba(66, 127, 196, 0.15);
   border-color: var(--primary);
+}
+
+.sessionButton {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  display: block;
+}
+
+.deleteButton {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  font-size: 24px;
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0;
+  flex-shrink: 0;
+}
+
+.sessionItem:hover .deleteButton {
+  opacity: 1;
+}
+
+.deleteButton:hover {
+  background: rgba(248, 81, 73, 0.15);
+  color: #f85149;
 }
 
 .sessionInfo {

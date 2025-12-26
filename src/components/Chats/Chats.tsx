@@ -56,6 +56,26 @@ export default function Chats({ selectedSessionId, onSelectSession, onNewChat }:
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   };
 
+  const handleDeleteSession = async (sessionId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    
+    if (!confirm("Are you sure you want to delete this chat session?")) {
+      return;
+    }
+
+    try {
+      await chatSessionApi.deleteSession(sessionId);
+      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      
+      if (selectedSessionId === sessionId) {
+        onNewChat();
+      }
+    } catch (err) {
+      console.error("Failed to delete chat session:", err);
+      setError("Failed to delete chat");
+    }
+  };
+
   if (!selectedCompany) {
     return (
       <div className={styles.container}>
@@ -100,22 +120,33 @@ export default function Chats({ selectedSessionId, onSelectSession, onNewChat }:
       {sessions.length > 0 && (
         <div className={styles.sessionList}>
           {sessions.map((session) => (
-            <button
+            <div
               key={session.id}
               className={`${styles.sessionItem} ${
                 selectedSessionId === session.id ? styles.selected : ""
               }`}
-              onClick={() => onSelectSession(session.id)}
             >
-              <div className={styles.sessionInfo}>
-                <div className={styles.sessionTitle}>
-                  Chat Session
+              <button
+                className={styles.sessionButton}
+                onClick={() => onSelectSession(session.id)}
+              >
+                <div className={styles.sessionInfo}>
+                  <div className={styles.sessionTitle}>
+                    Chat Session
+                  </div>
+                  <div className={styles.sessionDate}>
+                    {formatDate(session.updated_at)}
+                  </div>
                 </div>
-                <div className={styles.sessionDate}>
-                  {formatDate(session.updated_at)}
-                </div>
-              </div>
-            </button>
+              </button>
+              <button
+                className={styles.deleteButton}
+                onClick={(e) => handleDeleteSession(session.id, e)}
+                title="Delete chat"
+              >
+                ×
+              </button>
+            </div>
           ))}
         </div>
       )}
