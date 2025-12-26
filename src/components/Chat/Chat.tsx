@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./Chat.module.css";
 import Message from "@components/Message";
 import TodoDropdown from "@components/Todo/Todo";
+import CompanySelector from "@components/CompanySelector";
 import { callTriage } from "@lib/triageClient";
 import type { Message as TriageMessage } from "@lib/triageClient";
 import { useAuth } from "@/lib/auth/AuthContext";
@@ -39,6 +40,7 @@ export default function Chat() {
   const todoRef = useRef<Array<TodoItem>>([]);
   const [todoOpen, setTodoOpen] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState<number | null>(null);
+  const [showCompanySelector, setShowCompanySelector] = useState(false);
   const { selectedCompany } = useAuth();
   const isAutoScrollingRef = useRef(true); // track if user has scrolled up manually
 
@@ -53,6 +55,15 @@ export default function Chat() {
       },
     ]);
   }, []);
+
+  useEffect(() => {
+    // Show company selector if no company is selected
+    if (!selectedCompany) {
+      setShowCompanySelector(true);
+    } else {
+      setShowCompanySelector(false);
+    }
+  }, [selectedCompany]);
 
   useEffect(() => {
     // scroll to bottom whenever messages change
@@ -258,7 +269,21 @@ export default function Chat() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <div>AI Accounting — Chat</div>
+        <div className={styles.headerLeft}>
+          <div className={styles.appTitle}>AI Accounting — Chat</div>
+          {selectedCompany && (
+            <div className={styles.companyInfo}>
+              <span className={styles.companyName}>{selectedCompany.name}</span>
+              <button 
+                className={styles.changeCompanyBtn}
+                onClick={() => setShowCompanySelector(true)}
+                title="Change company"
+              >
+                Change
+              </button>
+            </div>
+          )}
+        </div>
         <div>
           <TodoDropdown
             todo={todoRef.current}
@@ -275,9 +300,23 @@ export default function Chat() {
         role="log"
         aria-live="polite"
       >
-        {messages.map((m) => (
-          <Message key={m.id} message={m} />
-        ))}
+        {!selectedCompany ? (
+          <div className={styles.noCompanyMessage}>
+            <div className={styles.noCompanyIcon}>🏢</div>
+            <h3>Select a Company to Start</h3>
+            <p>Please select a company to begin using the AI accounting assistant.</p>
+            <button 
+              className={styles.selectCompanyBtn}
+              onClick={() => setShowCompanySelector(true)}
+            >
+              Select Company
+            </button>
+          </div>
+        ) : (
+          messages.map((m) => (
+            <Message key={m.id} message={m} />
+          ))
+        )}
         <div ref={bottomRef} style={{ height: "1px" }} />
       </div>
 
@@ -286,13 +325,24 @@ export default function Chat() {
           className={styles.input}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Message the triage agent..."
+          placeholder={selectedCompany ? "Message the triage agent..." : "Select a company to start chatting..."}
           aria-label="Message"
+          disabled={!selectedCompany}
         />
-        <button className={styles.send} type="submit">
+        <button 
+          className={styles.send} 
+          type="submit"
+          disabled={!selectedCompany || !input.trim()}
+        >
           Send
         </button>
       </form>
+
+      <CompanySelector
+        isOpen={showCompanySelector}
+        onClose={() => setShowCompanySelector(false)}
+        canClose={!!selectedCompany}
+      />
     </div>
   );
 }

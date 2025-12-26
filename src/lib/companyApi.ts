@@ -11,6 +11,7 @@ export interface CompanyResponse {
   organization_number?: string;
   created_at: string;
   updated_at: string;
+  user_role: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 }
 
 export interface ApiError {
@@ -92,6 +93,15 @@ class CompanyApi {
   async deleteCompany(companyId: string): Promise<void> {
     return httpClient.request<void>(`/companies/${companyId}`, {
       method: "DELETE",
+    });
+  }
+
+  /**
+   * Get all companies for the current user (includes user role)
+   */
+  async getMyCompanies(): Promise<CompanyResponse[]> {
+    return httpClient.request<CompanyResponse[]>("/companies/my-companies", {
+      method: "GET",
     });
   }
 }
