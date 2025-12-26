@@ -3,12 +3,12 @@
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Chat from "@/components/Chat";
+import ChatInterface from "@/components/ChatInterface";
 import PublicChat from "@/components/PublicChat";
 import styles from "./page.module.css";
 
 export default function Home() {
-  const { isAuthenticated, isLoading, logout, selectedCompany } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const searchParams = useSearchParams();
   const [welcomeMessage, setWelcomeMessage] = useState<string>("");
 
@@ -43,42 +43,9 @@ export default function Home() {
     return <PublicChat />;
   }
 
-  // Show authenticated app for logged-in users
+  // Show authenticated chat interface for logged-in users
   return (
-    <div className={styles.appContainer}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.logo}>
-            <span className={styles.logoIcon}>💼</span>
-            <span className={styles.logoText}>Accounting</span>
-            {selectedCompany && (
-              <span className={styles.selectedCompany}>
-                • {selectedCompany.name}
-              </span>
-            )}
-          </div>
-          <div className={styles.headerActions}>
-            <button
-              onClick={() => window.open("/companies", "_self")}
-              className={styles.companiesButton}
-            >
-              Companies
-            </button>
-            <button
-              onClick={() =>
-                window.open("/integrations/choose-provider", "_self")
-              }
-              className={styles.addIntegrationButton}
-            >
-              Add Integration
-            </button>
-            <button onClick={logout} className={styles.logoutButton}>
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </header>
-
+    <>
       {welcomeMessage && (
         <div className={styles.welcomeMessage}>
           <span>🎉</span>
@@ -91,10 +58,7 @@ export default function Home() {
           </button>
         </div>
       )}
-
-      <main className={styles.mainContent}>
-        <Chat />
-      </main>
-    </div>
+      <ChatInterface />
+    </>
   );
 }

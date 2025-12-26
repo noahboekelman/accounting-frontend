@@ -40,6 +40,7 @@ export default function CompaniesPage() {
       userRole: company.user_role,
     };
     selectCompany(companyInfo);
+    router.push("/"); // Navigate to home/chat after selecting
   };
 
   const handleManageCompany = (companyId: string) => {
@@ -84,12 +85,20 @@ export default function CompaniesPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>My Companies</h1>
-        <button
-          className={styles.createButton}
-          onClick={() => router.push("/create-company")}
-        >
-          Create New Company
-        </button>
+        <div className={styles.headerActions}>
+          <button
+            className={styles.backButton}
+            onClick={() => router.push("/")}
+          >
+            ← Back to Chat
+          </button>
+          <button
+            className={styles.createButton}
+            onClick={() => router.push("/create-company")}
+          >
+            Create New Company
+          </button>
+        </div>
       </div>
 
       {companies.length === 0 ? (
@@ -140,7 +149,7 @@ export default function CompaniesPage() {
                         className={styles.selectButton}
                         onClick={() => handleSelectCompany(company)}
                       >
-                        Select
+                        Select & Chat
                       </button>
                     )}
                     {company.user_role === "OWNER" && (
