@@ -45,6 +45,7 @@ export default function CompanySelector({ isOpen, onClose, canClose = false }: C
       userRole: company.user_role,
     });
     onClose?.();
+    window.location.reload();
   };
 
   const handleClose = () => {
