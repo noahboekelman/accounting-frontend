@@ -24,7 +24,8 @@ export async function callTriage(
   onTodo: (data: string) => void,
   onChunk: (data: Chunk) => void,
   onCurrentTask: (data: string) => void,
-  onTaskDone: (data: string) => void
+  onTaskDone: (data: string) => void,
+  sessionId?: string
 ) {
   if (typeof window === "undefined" || typeof EventSource === "undefined") {
     console.warn("SSE not available in this environment");
@@ -49,10 +50,17 @@ export async function callTriage(
   const queryParams = new URLSearchParams();
   queryParams.append("query", messages[messages.length - 1].content);
   queryParams.append("company_id", companyId);
-  const threadId = getThreadIdFromSessionStorage();
-  if (threadId) {
-    queryParams.append("thread_id", threadId);
+  
+  // Use session ID if provided, otherwise fall back to thread_id from session storage
+  if (sessionId) {
+    queryParams.append("thread_id", sessionId);
+  } else {
+    const threadId = getThreadIdFromSessionStorage();
+    if (threadId) {
+      queryParams.append("thread_id", threadId);
+    }
   }
+  
   const urlWithParams = `${url}?${queryParams.toString()}`;
 
   const es = new EventSource(urlWithParams, {

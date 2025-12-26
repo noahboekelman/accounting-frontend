@@ -5,9 +5,11 @@ import styles from "./Chat.module.css";
 import Message from "@components/Message";
 import TodoDropdown from "@components/Todo/Todo";
 import CompanySelector from "@components/CompanySelector";
+import Chats from "@components/Chats";
 import { callTriage } from "@lib/triageClient";
 import type { Message as TriageMessage } from "@lib/triageClient";
 import { useAuth } from "@/lib/auth/AuthContext";
+import chatSessionApi from "@/lib/chatSessionApi";
 
 export type ChatMessage = {
   id: string;
@@ -37,15 +39,89 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const listRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const todoRef = useRef<Array<TodoItem>>([]);
+  const [todos, setTodos] = useState<Array<TodoItem>>([]);
   const [todoOpen, setTodoOpen] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState<number | null>(null);
   const [showCompanySelector, setShowCompanySelector] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const { selectedCompany } = useAuth();
   const isAutoScrollingRef = useRef(true); // track if user has scrolled up manually
+  const hasLoadedSessionRef = useRef(false);
 
-  useEffect(() => {
-    // initial welcome
+  function scrollToBottom() {
+    // prefer using the sentinel for smooth scrolling
+    if (bottomRef.current) {
+      try {
+        bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+        return;
+      } catch {
+        // fallback
+      }
+    }
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }
+
+  function scrollToBottomImmediate() {
+    // immediate scroll without smooth behavior for streaming content
+    if (bottomRef.current) {
+      try {
+        bottomRef.current.scrollIntoView({ behavior: "instant", block: "end" });
+        return;
+      } catch {
+        // fallback
+      }
+    }
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }
+
+  function appendAgentChunk(id: string, chunk: Chunk) {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === id ? { ...m, text: m.text + chunk.content } : m
+      )
+    );
+    // only auto-scroll if user hasn't manually scrolled up
+    if (isAutoScrollingRef.current) {
+      requestAnimationFrame(() => scrollToBottomImmediate());
+    }
+  }
+
+  const handleSelectSession = React.useCallback(async (sessionId: string) => {
+    setCurrentSessionId(sessionId);
+    try {
+      const sessionData = await chatSessionApi.getSessionWithMessages(sessionId);
+      
+      // Convert session messages to chat messages
+      // Filter only human and ai messages with content
+      const loadedMessages: ChatMessage[] = sessionData.messages
+        .filter((msg) => {
+          const messageType = msg.message?.data?.type || msg.message?.type;
+          return (messageType === "human" || messageType === "ai") && 
+                 msg.message?.data?.content;
+        })
+        .map((msg) => {
+          const messageData = msg.message.data;
+          return {
+            id: `msg-${msg.id}`,
+            author: messageData.type === "human" ? "user" : "agent",
+            text: messageData.content,
+            timestamp: msg.created_at,
+          };
+        });
+      
+      setMessages(loadedMessages);
+    } catch (err) {
+      console.error("Failed to load session messages:", err);
+      // Keep current messages on error
+    }
+  }, []);
+
+  const handleNewChat = React.useCallback(() => {
+    setCurrentSessionId(null);
     setMessages([
       {
         id: "m-welcome",
@@ -56,14 +132,36 @@ export default function Chat() {
     ]);
   }, []);
 
-  useEffect(() => {
-    // Show company selector if no company is selected
-    if (!selectedCompany) {
-      setShowCompanySelector(true);
-    } else {
-      setShowCompanySelector(false);
+  const loadLatestSession = React.useCallback(async () => {
+    if (!selectedCompany) return;
+
+    try {
+      const response = await chatSessionApi.getSessions(selectedCompany.id, 1, 1);
+      if (response.sessions.length > 0) {
+        const latestSession = response.sessions[0];
+        await handleSelectSession(latestSession.id);
+      } else {
+        // No sessions, show welcome message
+        handleNewChat();
+      }
+    } catch (err) {
+      console.error("Failed to load latest session:", err);
+      // Show welcome message on error
+      handleNewChat();
     }
-  }, [selectedCompany]);
+  }, [selectedCompany, handleSelectSession, handleNewChat]);
+
+  useEffect(() => {
+    // Load latest session when company is selected
+    if (selectedCompany && !hasLoadedSessionRef.current) {
+      hasLoadedSessionRef.current = true;
+      loadLatestSession();
+      setShowCompanySelector(false);
+    } else if (!selectedCompany) {
+      hasLoadedSessionRef.current = false;
+      setShowCompanySelector(true);
+    }
+  }, [selectedCompany, loadLatestSession]);
 
   useEffect(() => {
     // scroll to bottom whenever messages change
@@ -86,48 +184,6 @@ export default function Chat() {
     messagesContainer.addEventListener("scroll", handleScroll);
     return () => messagesContainer.removeEventListener("scroll", handleScroll);
   }, []);
-
-  function scrollToBottom() {
-    // prefer using the sentinel for smooth scrolling
-    if (bottomRef.current) {
-      try {
-        bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-        return;
-      } catch (_) {
-        // fallback
-      }
-    }
-    if (listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
-    }
-  }
-
-  function scrollToBottomImmediate() {
-    // immediate scroll without smooth behavior for streaming content
-    if (bottomRef.current) {
-      try {
-        bottomRef.current.scrollIntoView({ behavior: "instant", block: "end" });
-        return;
-      } catch (_) {
-        // fallback
-      }
-    }
-    if (listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
-    }
-  }
-
-  function appendAgentChunk(id: string, chunk: Chunk) {
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === id ? { ...m, text: m.text + chunk.content } : m
-      )
-    );
-    // only auto-scroll if user hasn't manually scrolled up
-    if (isAutoScrollingRef.current) {
-      requestAnimationFrame(() => scrollToBottomImmediate());
-    }
-  }
 
   async function handleSend(text: string) {
     if (!text.trim()) return;
@@ -176,12 +232,12 @@ export default function Chat() {
         // Convert Python-style single quotes to JSON double quotes
         const normalizedContent = ev?.content.replace(/'/g, '"');
         const content = JSON.parse(normalizedContent);
-        const tasks = content.map((t: any, index: number) => ({
+        const tasks = content.map((t: { title?: string; content?: string; name?: string; status?: string; done?: boolean }, index: number) => ({
           id: String(index + 1),
           title: String(t.title ?? t.content ?? t.name ?? ""),
           done: t.status === "completed" || t.status === "done" || !!t.done,
         }));
-        todoRef.current = tasks;
+        setTodos(tasks);
       } catch (err) {
         console.warn("Failed to parse todo_list event", err);
       }
@@ -195,7 +251,7 @@ export default function Chat() {
         if (ev && typeof ev.id !== "undefined") {
           id = Number(ev.id);
           title =
-            todoRef.current.find((t) => Number(t.id) === Number(id))?.title ??
+            todos.find((t) => Number(t.id) === Number(id))?.title ??
             "";
         }
       } catch (err) {
@@ -226,8 +282,10 @@ export default function Chat() {
         console.warn("failed to parse task_done", err);
       }
       if (id === -1) return console.warn("invalid task_done id:", data);
-      todoRef.current = todoRef.current.map((t) =>
-        Number(t.id) === Number(id) ? { ...t, done: true } : t
+      setTodos((prevTodos) =>
+        prevTodos.map((t) =>
+          Number(t.id) === Number(id) ? { ...t, done: true } : t
+        )
       );
       setCurrentTaskId(null);
     };
@@ -246,7 +304,8 @@ export default function Chat() {
       onTodo,
       onChunk,
       onCurrentTask,
-      onTaskDone
+      onTaskDone,
+      currentSessionId || undefined
     );
 
     if (!result) {
@@ -267,7 +326,13 @@ export default function Chat() {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.layout}>
+      <Chats
+        selectedSessionId={currentSessionId || undefined}
+        onSelectSession={handleSelectSession}
+        onNewChat={handleNewChat}
+      />
+      <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <div className={styles.appTitle}>AI Accounting — Chat</div>
@@ -286,7 +351,7 @@ export default function Chat() {
         </div>
         <div>
           <TodoDropdown
-            todo={todoRef.current}
+            todo={todos}
             currentStepId={currentTaskId}
             open={todoOpen}
             setOpen={setTodoOpen}
@@ -343,6 +408,7 @@ export default function Chat() {
         onClose={() => setShowCompanySelector(false)}
         canClose={!!selectedCompany}
       />
+      </div>
     </div>
   );
 }
