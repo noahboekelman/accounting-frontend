@@ -47,7 +47,6 @@ export default function ChatInterface() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const { selectedCompany } = useAuth();
   const isAutoScrollingRef = useRef(true);
-  const hasLoadedSessionRef = useRef(false);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
   function scrollToBottom() {
@@ -93,13 +92,17 @@ export default function ChatInterface() {
     if (sessionId === currentSessionId) return;
     setCurrentSessionId(sessionId);
     try {
-      const sessionData = await chatSessionApi.getSessionWithMessages(sessionId);
-      
+      const sessionData = await chatSessionApi.getSessionWithMessages(
+        sessionId
+      );
+
       const loadedMessages: ChatMessage[] = sessionData.messages
         .filter((msg) => {
           const messageType = msg.message?.data?.type || msg.message?.type;
-          return (messageType === "human" || messageType === "ai") && 
-                 msg.message?.data?.content;
+          return (
+            (messageType === "human" || messageType === "ai") &&
+            msg.message?.data?.content
+          );
         })
         .map((msg) => {
           const messageData = msg.message.data;
@@ -110,7 +113,7 @@ export default function ChatInterface() {
             timestamp: msg.created_at,
           };
         });
-      
+
       setMessages(loadedMessages);
     } catch (err) {
       console.error("Failed to load session messages:", err);
@@ -122,33 +125,11 @@ export default function ChatInterface() {
     setMessages([]);
   }, []);
 
-  const loadLatestSession = useCallback(async () => {
-    if (!selectedCompany) return;
-
-    try {
-      const response = await chatSessionApi.getSessions(selectedCompany.id, 1, 1);
-      if (response.sessions.length > 0) {
-        const latestSession = response.sessions[0];
-        await handleSelectSession(latestSession.id);
-      } else {
-        handleNewChat();
-      }
-    } catch (err) {
-      console.error("Failed to load latest session:", err);
-      handleNewChat();
-    }
-  }, [selectedCompany, handleSelectSession, handleNewChat]);
-
   useEffect(() => {
-    if (selectedCompany && !hasLoadedSessionRef.current) {
-      hasLoadedSessionRef.current = true;
-      loadLatestSession();
-      setShowCompanySelector(false);
-    } else if (!selectedCompany) {
-      hasLoadedSessionRef.current = false;
+    if (!selectedCompany) {
       setShowCompanySelector(true);
     }
-  }, [selectedCompany, loadLatestSession]);
+  }, [selectedCompany]);
 
   useEffect(() => {
     if (isAutoScrollingRef.current) {
@@ -210,11 +191,22 @@ export default function ChatInterface() {
         const ev = JSON.parse(data);
         const normalizedContent = ev?.content.replace(/'/g, '"');
         const content = JSON.parse(normalizedContent);
-        const tasks = content.map((t: { title?: string; content?: string; name?: string; status?: string; done?: boolean }, index: number) => ({
-          id: String(index + 1),
-          title: String(t.title ?? t.content ?? t.name ?? ""),
-          done: t.status === "completed" || t.status === "done" || !!t.done,
-        }));
+        const tasks = content.map(
+          (
+            t: {
+              title?: string;
+              content?: string;
+              name?: string;
+              status?: string;
+              done?: boolean;
+            },
+            index: number
+          ) => ({
+            id: String(index + 1),
+            title: String(t.title ?? t.content ?? t.name ?? ""),
+            done: t.status === "completed" || t.status === "done" || !!t.done,
+          })
+        );
         setTodos(tasks);
       } catch (err) {
         console.warn("Failed to parse todo_list event", err);
@@ -237,8 +229,8 @@ export default function ChatInterface() {
 
     const onNewSession = (newSessionId: string) => {
       // This is called after stream ends to refresh the sidebar
-      setSidebarRefreshTrigger(prev => prev + 1);
-    }
+      setSidebarRefreshTrigger((prev) => prev + 1);
+    };
 
     const result = await callTriage(
       selectedCompany.id,
@@ -273,14 +265,17 @@ export default function ChatInterface() {
         onNewChat={handleNewChat}
         refreshTrigger={sidebarRefreshTrigger}
       />
-      
+
       <div className={styles.mainArea}>
         {!selectedCompany ? (
           <div className={styles.noCompanyMessage}>
             <div className={styles.noCompanyIcon}>🏢</div>
             <h3>Select a Company to Start</h3>
-            <p>Please select a company to begin using the AI accounting assistant.</p>
-            <button 
+            <p>
+              Please select a company to begin using the AI accounting
+              assistant.
+            </p>
+            <button
               className={styles.selectCompanyBtn}
               onClick={() => setShowCompanySelector(true)}
             >
@@ -288,8 +283,8 @@ export default function ChatInterface() {
             </button>
           </div>
         ) : !hasActiveChat ? (
-          <WelcomeView 
-            onSendMessage={handleSend} 
+          <WelcomeView
+            onSendMessage={handleSend}
             companyName={selectedCompany.name}
           />
         ) : (
@@ -298,8 +293,10 @@ export default function ChatInterface() {
               <div className={styles.headerLeft}>
                 {selectedCompany && (
                   <div className={styles.companyInfo}>
-                    <span className={styles.companyName}>{selectedCompany.name}</span>
-                    <button 
+                    <span className={styles.companyName}>
+                      {selectedCompany.name}
+                    </span>
+                    <button
                       className={styles.changeCompanyBtn}
                       onClick={() => setShowCompanySelector(true)}
                       title="Change company"
@@ -319,7 +316,12 @@ export default function ChatInterface() {
               </div>
             </header>
 
-            <div className={styles.messages} ref={listRef} role="log" aria-live="polite">
+            <div
+              className={styles.messages}
+              ref={listRef}
+              role="log"
+              aria-live="polite"
+            >
               {messages.map((m) => (
                 <Message key={m.id} message={m} />
               ))}
@@ -334,8 +336,8 @@ export default function ChatInterface() {
                 placeholder="Message the triage agent..."
                 aria-label="Message"
               />
-              <button 
-                className={styles.send} 
+              <button
+                className={styles.send}
                 type="submit"
                 disabled={!input.trim()}
               >
