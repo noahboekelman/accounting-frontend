@@ -11,9 +11,10 @@ interface SidebarProps {
   selectedSessionId?: string;
   onSelectSession: (sessionId: string) => void;
   onNewChat: () => void;
+  refreshTrigger?: number;
 }
 
-export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat }: SidebarProps) {
+export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat, refreshTrigger }: SidebarProps) {
   const router = useRouter();
   const { selectedCompany, logout } = useAuth();
   const [sessions, setSessions] = useState<ChatSessionResponse[]>([]);
@@ -25,6 +26,13 @@ export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat 
       loadSessions();
     }
   }, [selectedCompany]);
+
+  useEffect(() => {
+    if (selectedCompany && refreshTrigger && refreshTrigger > 0) {
+      console.log("Refreshing sessions in Sidebar");
+      loadSessions();
+    }
+  }, [refreshTrigger]);
 
   const loadSessions = async () => {
     if (!selectedCompany) return;

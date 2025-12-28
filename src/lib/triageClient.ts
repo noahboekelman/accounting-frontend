@@ -1,8 +1,4 @@
 import { Chunk } from "@/components/ChatInterface/ChatInterface";
-import {
-  getThreadIdFromSessionStorage,
-  setThreadIdToSessionStorage,
-} from "@/lib/utils";
 import httpClient from "@/lib/httpClient";
 
 type Message = {
@@ -23,8 +19,7 @@ export async function callTriage(
   // callbacks
   onTodo: (data: string) => void,
   onChunk: (data: Chunk) => void,
-  onCurrentTask: (data: string) => void,
-  onTaskDone: (data: string) => void,
+  onNewSession: (newSessionId: string) => void,
   sessionId?: string
 ) {
   if (typeof window === "undefined" || typeof EventSource === "undefined") {
@@ -50,37 +45,32 @@ export async function callTriage(
   const queryParams = new URLSearchParams();
   queryParams.append("query", messages[messages.length - 1].content);
   queryParams.append("company_id", companyId);
-  
+
   // Use session ID if provided, otherwise fall back to thread_id from session storage
   if (sessionId) {
     queryParams.append("thread_id", sessionId);
-  } else {
-    const threadId = getThreadIdFromSessionStorage();
-    if (threadId) {
-      queryParams.append("thread_id", threadId);
-    }
   }
-  
+
   const urlWithParams = `${url}?${queryParams.toString()}`;
 
   const es = new EventSource(urlWithParams, {
     withCredentials: true,
   });
 
+  let threadId: string = "";
+
   const onAssistantChunk = (e: MessageEvent) => {
     try {
       const type = e.type;
       const data = JSON.parse(e.data);
+
       if (data.metadata && data.metadata.thread_id) {
-        setThreadIdToSessionStorage(data.metadata.thread_id);
+        if (!threadId) {
+          threadId = data.metadata.thread_id;
+        }
       }
-      if (type === "done") {
-        try {
-          es.close();
-        } catch {}
-      } else {
-        onChunk(data);
-      }
+
+      onChunk(data);
     } catch (err) {
       console.warn("Failed to parse assistant_chunk event", err);
       try {
@@ -99,9 +89,18 @@ export async function callTriage(
 
   es.addEventListener("todo_list", (e) => onTodo(e.data));
 
-  es.addEventListener("current_task", (e) => onCurrentTask(e.data));
-
-  es.addEventListener("task_done", (e) => onTaskDone(e.data));
+  es.addEventListener("done", () => {
+    console.log("SSE stream done");
+    if (!sessionId && threadId) {
+      console.log("New session created with ID:", threadId);
+      setTimeout(() => {
+        onNewSession(threadId);
+      }, 2500);
+    }
+    try {
+      es.close();
+    } catch {}
+  });
 
   const cancel = () => {
     try {

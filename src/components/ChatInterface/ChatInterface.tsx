@@ -48,6 +48,7 @@ export default function ChatInterface() {
   const { selectedCompany } = useAuth();
   const isAutoScrollingRef = useRef(true);
   const hasLoadedSessionRef = useRef(false);
+  const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
   function scrollToBottom() {
     if (bottomRef.current) {
@@ -220,66 +221,31 @@ export default function ChatInterface() {
       }
     };
 
-    const onCurrentTask = (data: string) => {
-      let id: number = -1;
-      let title: string = "";
-      try {
-        const ev = JSON.parse(data);
-        if (ev && typeof ev.id !== "undefined") {
-          id = Number(ev.id);
-          title = todos.find((t) => Number(t.id) === Number(id))?.title ?? "";
-        }
-      } catch (err) {
-        console.warn("failed to parse current_task", err);
-      }
-      if (id === -1) return console.warn("invalid current_task id:", data);
-      setCurrentTaskId(id);
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === agentId
-            ? {
-                ...m,
-                text: m.text + `\n\n[${id} - ${title}]\n\n`,
-              }
-            : m
-        )
-      );
-    };
-
-    const onTaskDone = (data: string) => {
-      let id: number = -1;
-      try {
-        const ev = JSON.parse(data);
-        if (ev && typeof ev.id !== "undefined") {
-          id = Number(ev.id);
-        }
-      } catch (err) {
-        console.warn("failed to parse task_done", err);
-      }
-      if (id === -1) return console.warn("invalid task_done id:", data);
-      setTodos((prevTodos) =>
-        prevTodos.map((t) =>
-          Number(t.id) === Number(id) ? { ...t, done: true } : t
-        )
-      );
-      setCurrentTaskId(null);
-    };
-
     const onChunk = (data: Chunk) => {
       try {
-        if (data) appendAgentChunk(agentId, data);
+        if (data) {
+          appendAgentChunk(agentId, data);
+          // Capture session ID immediately from the first chunk if this is a new conversation
+          if (data.metadata?.thread_id && !currentSessionId) {
+            setCurrentSessionId(data.metadata.thread_id);
+          }
+        }
       } catch (err) {
         console.warn("Failed to parse assistant_chunk event", err);
       }
     };
+
+    const onNewSession = (newSessionId: string) => {
+      // This is called after stream ends to refresh the sidebar
+      setSidebarRefreshTrigger(prev => prev + 1);
+    }
 
     const result = await callTriage(
       selectedCompany.id,
       triageMessages,
       onTodo,
       onChunk,
-      onCurrentTask,
-      onTaskDone,
+      onNewSession,
       currentSessionId || undefined
     );
 
@@ -305,6 +271,7 @@ export default function ChatInterface() {
         selectedSessionId={currentSessionId || undefined}
         onSelectSession={handleSelectSession}
         onNewChat={handleNewChat}
+        refreshTrigger={sidebarRefreshTrigger}
       />
       
       <div className={styles.mainArea}>
