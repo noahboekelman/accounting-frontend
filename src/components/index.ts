@@ -1,5 +1,3 @@
-export { default as Chat } from "./Chat/Chat";
-export { default as ChatArea } from "./ChatArea";
 export { default as ChatInterface } from "./ChatInterface";
 export { default as Chats } from "./Chats";
 export { default as CompanySelector } from "./CompanySelector";

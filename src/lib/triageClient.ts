@@ -1,4 +1,4 @@
-import { Chunk } from "@/components/Chat/Chat";
+import { Chunk } from "@/components/ChatInterface/ChatInterface";
 import {
   getThreadIdFromSessionStorage,
   setThreadIdToSessionStorage,
