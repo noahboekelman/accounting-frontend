@@ -89,6 +89,7 @@ export default function ChatInterface() {
   }
 
   const handleSelectSession = useCallback(async (sessionId: string) => {
+    if (sessionId === currentSessionId) return;
     setCurrentSessionId(sessionId);
     try {
       const sessionData = await chatSessionApi.getSessionWithMessages(sessionId);
