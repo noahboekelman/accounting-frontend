@@ -339,19 +339,13 @@
             }
           },
           {
-            "name": "integration_external_id",
+            "name": "company_integration_id",
             "in": "query",
-            "required": false,
+            "required": true,
             "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Integration External Id"
+              "type": "string",
+              "format": "uuid",
+              "title": "Company Integration Id"
             }
           },
           {
@@ -2170,6 +2164,25 @@
             "description": "Company ID to filter sessions"
           },
           {
+            "name": "company_integration_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Company Integration ID to filter sessions (optional)",
+              "title": "Company Integration Id"
+            },
+            "description": "Company Integration ID to filter sessions (optional)"
+          },
+          {
             "name": "page",
             "in": "query",
             "required": false,
@@ -2204,6 +2217,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ChatSessionListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "chat-sessions"
+        ],
+        "summary": "Create Chat Session",
+        "description": "Create a new chat session",
+        "operationId": "create_chat_session_chat_sessions__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatSessionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatSessionResponse"
                 }
               }
             }
@@ -2431,6 +2484,38 @@
         ],
         "title": "ChatMessageResponse"
       },
+      "ChatSessionCreate": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "company_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Id"
+          },
+          "company_integration_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Integration Id"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "company_id",
+          "company_integration_id",
+          "id"
+        ],
+        "title": "ChatSessionCreate"
+      },
       "ChatSessionListResponse": {
         "properties": {
           "sessions": {
@@ -2469,6 +2554,11 @@
             "format": "uuid",
             "title": "Company Id"
           },
+          "company_integration_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Integration Id"
+          },
           "messages": {
             "items": {
               "$ref": "#/components/schemas/ChatMessageResponse"
@@ -2486,6 +2576,7 @@
           "session_id",
           "user_id",
           "company_id",
+          "company_integration_id",
           "messages",
           "total_messages"
         ],
@@ -2502,6 +2593,11 @@
             "type": "string",
             "format": "uuid",
             "title": "Company Id"
+          },
+          "company_integration_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Company Integration Id"
           },
           "id": {
             "type": "string",
@@ -2523,6 +2619,7 @@
         "required": [
           "user_id",
           "company_id",
+          "company_integration_id",
           "id",
           "created_at",
           "updated_at"
