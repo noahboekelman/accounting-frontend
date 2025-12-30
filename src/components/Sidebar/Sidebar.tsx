@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthContext";
 import chatSessionApi from "@/lib/chatSessionApi";
+import integrationApi, { type CompanyIntegrationResponse } from "@/lib/integrationApi";
 import type { ChatSessionResponse } from "@/lib/types/chatSession";
 import { CompanySelector, IntegrationSelector } from "@/components";
 import styles from "./Sidebar.module.css";
@@ -19,6 +20,7 @@ export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat,
   const router = useRouter();
   const { selectedCompany, selectedCompanyIntegrationId, logout, selectIntegration } = useAuth();
   const [sessions, setSessions] = useState<ChatSessionResponse[]>([]);
+  const [integration, setIntegration] = useState<CompanyIntegrationResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCompanySelector, setShowCompanySelector] = useState(false);
@@ -27,6 +29,7 @@ export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat,
   useEffect(() => {
     if (selectedCompany && selectedCompanyIntegrationId) {
       loadSessions();
+      loadIntegration();
     }
   }, [selectedCompany, selectedCompanyIntegrationId]);
 
@@ -36,6 +39,22 @@ export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat,
       loadSessions();
     }
   }, [refreshTrigger]);
+
+  const loadIntegration = async () => {
+    if (!selectedCompanyIntegrationId) {
+      setIntegration(null);
+      return;
+    }
+
+    try {
+      const integrations = await integrationApi.getIntegrationsByCompany(selectedCompany!.id);
+      const currentIntegration = integrations.find(i => i.id === selectedCompanyIntegrationId);
+      setIntegration(currentIntegration || null);
+    } catch (err) {
+      console.error("Failed to load integration:", err);
+      setIntegration(null);
+    }
+  };
 
   const loadSessions = async () => {
     if (!selectedCompany || !selectedCompanyIntegrationId) return;
@@ -132,7 +151,7 @@ export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat,
             title="Manage Integrations"
           >
             <span className={styles.navIcon}>🔗</span>
-            {selectedCompanyIntegrationId ? "Integration" : "Add Integration"}
+            {integration ? integration.external_company_name : selectedCompanyIntegrationId ? "Integration" : "Add Integration"}
           </button>
           <button 
             className={styles.navLink}
