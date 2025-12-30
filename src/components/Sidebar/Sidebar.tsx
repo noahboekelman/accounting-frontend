@@ -25,13 +25,13 @@ export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat,
   const [showIntegrationSelector, setShowIntegrationSelector] = useState(false);
 
   useEffect(() => {
-    if (selectedCompany) {
+    if (selectedCompany && selectedCompanyIntegrationId) {
       loadSessions();
     }
-  }, [selectedCompany]);
+  }, [selectedCompany, selectedCompanyIntegrationId]);
 
   useEffect(() => {
-    if (selectedCompany && refreshTrigger && refreshTrigger > 0) {
+    if (selectedCompany && selectedCompanyIntegrationId && refreshTrigger && refreshTrigger > 0) {
       console.log("Refreshing sessions in Sidebar");
       loadSessions();
     }
