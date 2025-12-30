@@ -45,7 +45,7 @@ export default function ChatInterface() {
   const [currentTaskId, setCurrentTaskId] = useState<number | null>(null);
   const [showCompanySelector, setShowCompanySelector] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const { selectedCompany, selectedIntegrationExternalId } = useAuth();
+  const { selectedCompany, selectedCompanyIntegrationId } = useAuth();
   const isAutoScrollingRef = useRef(true);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
@@ -239,7 +239,7 @@ export default function ChatInterface() {
       onChunk,
       onNewSession,
       currentSessionId || undefined,
-      selectedIntegrationExternalId
+      selectedCompanyIntegrationId
     );
 
     if (!result) {

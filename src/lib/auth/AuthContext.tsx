@@ -22,13 +22,13 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   selectedCompany: CompanyInfo | null;
-  selectedIntegrationExternalId: string | null;
+  selectedCompanyIntegrationId: string | null;
   login: (credentials: LoginRequest) => Promise<void>;
   register: (userData: UserCreateRequest) => Promise<void>;
   logout: () => Promise<void>;
   selectCompany: (company: CompanyInfo) => void;
   clearSelectedCompany: () => void;
-  selectIntegration: (externalId: string) => void;
+  selectIntegration: (integrationId: string) => void;
   clearSelectedIntegration: () => void;
 }
 
@@ -53,10 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   );
 
-  const [selectedIntegrationExternalId, setSelectedIntegrationExternalId] =
+  const [selectedCompanyIntegrationId, setSelectedCompanyIntegrationId] =
     useState<string | null>(() => {
       if (typeof window !== "undefined") {
-        const saved = localStorage.getItem("selected_integration_id");
+        const saved = localStorage.getItem("selected_company_integration_id");
         return saved || null;
       }
       return null;
@@ -132,17 +132,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const selectIntegration = (externalId: string) => {
-    setSelectedIntegrationExternalId(externalId);
+  const selectIntegration = (integrationId: string) => {
+    setSelectedCompanyIntegrationId(integrationId);
     if (typeof window !== "undefined") {
-      localStorage.setItem("selected_integration_id", externalId);
+      localStorage.setItem("selected_company_integration_id", integrationId);
     }
   };
 
   const clearSelectedIntegration = () => {
-    setSelectedIntegrationExternalId(null);
+    setSelectedCompanyIntegrationId(null);
     if (typeof window !== "undefined") {
-      localStorage.removeItem("selected_integration_id");
+      localStorage.removeItem("selected_company_integration_id");
     }
   };
 
@@ -172,7 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated,
         isLoading,
         selectedCompany,
-        selectedIntegrationExternalId,
+        selectedCompanyIntegrationId,
         login,
         register,
         logout,

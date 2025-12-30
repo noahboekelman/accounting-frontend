@@ -11,7 +11,7 @@ interface IntegrationSelectorProps {
   isOpen: boolean;
   onClose?: () => void;
   canClose?: boolean; // whether user can close without selecting
-  onIntegrationSelected?: (externalId: string) => void;
+  onIntegrationSelected?: (integrationId: string) => void;
 }
 
 export default function IntegrationSelector({
@@ -58,12 +58,8 @@ export default function IntegrationSelector({
   };
 
   const handleSelectIntegration = (integration: CompanyIntegrationResponse) => {
-    if (integration.external_id) {
-      onIntegrationSelected?.(integration.external_id);
-      onClose?.();
-    } else {
-      setError("This integration is missing an external ID");
-    }
+    onIntegrationSelected?.(integration.id);
+    onClose?.();
   };
 
   const handleAddNewIntegration = () => {

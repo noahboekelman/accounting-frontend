@@ -10,7 +10,7 @@ import { CompanySelector, IntegrationSelector } from "@/components";
 import styles from "./page.module.css";
 
 export default function Home() {
-  const { isAuthenticated, isLoading, selectedCompany, selectedIntegrationExternalId, selectIntegration } = useAuth();
+  const { isAuthenticated, isLoading, selectedCompany, selectedCompanyIntegrationId, selectIntegration } = useAuth();
   const searchParams = useSearchParams();
   const [welcomeMessage, setWelcomeMessage] = useState<string>("");
   const [showCompanySelector, setShowCompanySelector] = useState(false);
@@ -21,11 +21,11 @@ export default function Home() {
     if (!isLoading && isAuthenticated) {
       if (!selectedCompany) {
         setShowCompanySelector(true);
-      } else if (!selectedIntegrationExternalId) {
+      } else if (!selectedCompanyIntegrationId) {
         setShowIntegrationSelector(true);
       }
     }
-  }, [isLoading, isAuthenticated, selectedCompany, selectedIntegrationExternalId]);
+  }, [isLoading, isAuthenticated, selectedCompany, selectedCompanyIntegrationId]);
 
   useEffect(() => {
     const welcome = searchParams.get("welcome");
@@ -45,9 +45,9 @@ export default function Home() {
   }, [searchParams]);
 
   const handleIntegrationSelected = (
-    externalId: string
+    integrationId: string
   ) => {
-    selectIntegration(externalId);
+    selectIntegration(integrationId);
     setShowIntegrationSelector(false);
   };
 

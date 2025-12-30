@@ -17,7 +17,7 @@ interface SidebarProps {
 
 export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat, refreshTrigger }: SidebarProps) {
   const router = useRouter();
-  const { selectedCompany, selectedIntegrationExternalId, logout, selectIntegration } = useAuth();
+  const { selectedCompany, selectedCompanyIntegrationId, logout, selectIntegration } = useAuth();
   const [sessions, setSessions] = useState<ChatSessionResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,9 +90,9 @@ export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat,
   };
 
   const handleIntegrationSelected = (
-    externalId: string
+    integrationId: string
   ) => {
-    selectIntegration(externalId);
+    selectIntegration(integrationId);
     setShowIntegrationSelector(false);
   };
 
@@ -132,7 +132,7 @@ export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat,
             title="Manage Integrations"
           >
             <span className={styles.navIcon}>🔗</span>
-            {selectedIntegrationExternalId ? "Integration" : "Add Integration"}
+            {selectedCompanyIntegrationId ? "Integration" : "Add Integration"}
           </button>
           <button 
             className={styles.navLink}
