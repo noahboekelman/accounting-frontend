@@ -1,0 +1,356 @@
+:root {
+  --bg: #0d1117;
+  --panel: #0f1720;
+  --muted: #8b949e;
+  --accent: #238636;
+  --primary: #427fc4;
+  --error: #f85149;
+  --warning: #f0ad4e;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: var(--bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  color: #c9d1d9;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial;
+}
+
+.header {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #c9d1d9;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #c9d1d9;
+}
+
+.content {
+  padding: 24px;
+  max-height: calc(85vh - 80px);
+  overflow-y: auto;
+}
+
+.description {
+  margin: 0 0 24px 0;
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.warning {
+  background: rgba(240, 173, 78, 0.1);
+  border: 1px solid rgba(240, 173, 78, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  color: var(--warning);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+}
+
+.error {
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  color: var(--error);
+  text-align: center;
+}
+
+.retryButton {
+  background: var(--error);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.retryButton:hover {
+  background: #d73a49;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #c9d1d9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.integrationList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.integrationItem {
+  background: var(--panel);
+  border: 1px solid rgba(35, 134, 54, 0.2);
+  border-radius: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+}
+
+.integrationItem:hover {
+  background: rgba(35, 134, 54, 0.1);
+  border-color: rgba(35, 134, 54, 0.4);
+  transform: translateY(-1px);
+}
+
+.integrationItem:active {
+  transform: translateY(0);
+}
+
+.integrationIcon {
+  font-size: 32px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.integrationInfo {
+  flex: 1;
+}
+
+.integrationName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #c9d1d9;
+  margin-bottom: 4px;
+}
+
+.integrationId {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+  font-family: monospace;
+}
+
+.integrationProvider {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.selectIcon {
+  font-size: 18px;
+  color: var(--primary);
+  margin-left: 16px;
+  flex-shrink: 0;
+}
+
+.providerList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.providerItem {
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+}
+
+.providerItem:hover:not(.disabled) {
+  background: rgba(66, 127, 196, 0.1);
+  border-color: rgba(66, 127, 196, 0.3);
+  transform: translateY(-1px);
+}
+
+.providerItem:active:not(.disabled) {
+  transform: translateY(0);
+}
+
+.providerItem.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.providerIcon {
+  font-size: 32px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.providerInfo {
+  flex: 1;
+}
+
+.providerName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #c9d1d9;
+  margin-bottom: 4px;
+}
+
+.providerDescription {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.connectedBadge {
+  font-size: 12px;
+  color: var(--accent);
+  background: rgba(35, 134, 54, 0.15);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.connectIcon {
+  font-size: 24px;
+  color: var(--primary);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(66, 127, 196, 0.15);
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-weight: 300;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+}
+
+.emptyHint {
+  font-size: 13px;
+  margin-top: 8px;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.addIntegrationButton {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary), #5a8ed4);
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(66, 127, 196, 0.2);
+}
+
+.addIntegrationButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(66, 127, 196, 0.3);
+}
+
+.addIntegrationButton:active {
+  transform: translateY(0);
+}
+
+.addIcon {
+  font-size: 20px;
+  font-weight: 300;
+}

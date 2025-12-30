@@ -5,12 +5,26 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ChatInterface from "@/components/ChatInterface";
 import PublicChat from "@/components/PublicChat";
+import { CompanySelector, IntegrationSelector } from "@/components";
 import styles from "./page.module.css";
 
 export default function Home() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, selectedCompany, selectedIntegrationExternalId, selectIntegration } = useAuth();
   const searchParams = useSearchParams();
   const [welcomeMessage, setWelcomeMessage] = useState<string>("");
+  const [showCompanySelector, setShowCompanySelector] = useState(false);
+  const [showIntegrationSelector, setShowIntegrationSelector] = useState(false);
+
+  useEffect(() => {
+    // Check if authenticated user needs to select company or integration
+    if (!isLoading && isAuthenticated) {
+      if (!selectedCompany) {
+        setShowCompanySelector(true);
+      } else if (!selectedIntegrationExternalId) {
+        setShowIntegrationSelector(true);
+      }
+    }
+  }, [isLoading, isAuthenticated, selectedCompany, selectedIntegrationExternalId]);
 
   useEffect(() => {
     const welcome = searchParams.get("welcome");
@@ -29,6 +43,13 @@ export default function Home() {
     }
   }, [searchParams]);
 
+  const handleIntegrationSelected = (
+    externalId: string
+  ) => {
+    selectIntegration(externalId);
+    setShowIntegrationSelector(false);
+  };
+
   // Show loading state while checking authentication
   if (isLoading) {
     return (
@@ -46,6 +67,18 @@ export default function Home() {
   // Show authenticated chat interface for logged-in users
   return (
     <>
+      <CompanySelector
+        isOpen={showCompanySelector}
+        onClose={() => setShowCompanySelector(false)}
+        canClose={false}
+      />
+      <IntegrationSelector
+        isOpen={showIntegrationSelector}
+        onClose={() => setShowIntegrationSelector(false)}
+        canClose={false}
+        onIntegrationSelected={handleIntegrationSelected}
+      />
+
       {welcomeMessage && (
         <div className={styles.welcomeMessage}>
           <span>🎉</span>

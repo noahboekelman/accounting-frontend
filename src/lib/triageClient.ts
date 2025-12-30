@@ -20,7 +20,8 @@ export async function callTriage(
   onTodo: (data: string) => void,
   onChunk: (data: Chunk) => void,
   onNewSession: (newSessionId: string) => void,
-  sessionId?: string
+  sessionId?: string,
+  integrationExternalId?: string | null
 ) {
   if (typeof window === "undefined" || typeof EventSource === "undefined") {
     console.warn("SSE not available in this environment");
@@ -45,6 +46,11 @@ export async function callTriage(
   const queryParams = new URLSearchParams();
   queryParams.append("query", messages[messages.length - 1].content);
   queryParams.append("company_id", companyId);
+
+  // Add integration external ID if provided
+  if (integrationExternalId) {
+    queryParams.append("integration_external_id", integrationExternalId);
+  }
 
   // Use session ID if provided, otherwise fall back to thread_id from session storage
   if (sessionId) {

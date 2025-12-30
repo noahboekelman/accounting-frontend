@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthContext";
 import chatSessionApi from "@/lib/chatSessionApi";
 import type { ChatSessionResponse } from "@/lib/types/chatSession";
+import { CompanySelector, IntegrationSelector } from "@/components";
 import styles from "./Sidebar.module.css";
 
 interface SidebarProps {
@@ -16,10 +17,12 @@ interface SidebarProps {
 
 export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat, refreshTrigger }: SidebarProps) {
   const router = useRouter();
-  const { selectedCompany, logout } = useAuth();
+  const { selectedCompany, selectedIntegrationExternalId, logout, selectIntegration } = useAuth();
   const [sessions, setSessions] = useState<ChatSessionResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCompanySelector, setShowCompanySelector] = useState(false);
+  const [showIntegrationSelector, setShowIntegrationSelector] = useState(false);
 
   useEffect(() => {
     if (selectedCompany) {
@@ -86,8 +89,27 @@ export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat,
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   };
 
+  const handleIntegrationSelected = (
+    externalId: string
+  ) => {
+    selectIntegration(externalId);
+    setShowIntegrationSelector(false);
+  };
+
   return (
     <div className={styles.sidebar}>
+      <CompanySelector
+        isOpen={showCompanySelector}
+        onClose={() => setShowCompanySelector(false)}
+        canClose={true}
+      />
+      <IntegrationSelector
+        isOpen={showIntegrationSelector}
+        onClose={() => setShowIntegrationSelector(false)}
+        canClose={true}
+        onIntegrationSelected={handleIntegrationSelected}
+      />
+
       {/* Top Navigation Section */}
       <div className={styles.navSection}>
         <button className={styles.newChatButton} onClick={onNewChat}>
@@ -98,19 +120,19 @@ export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat,
         <nav className={styles.navLinks}>
           <button 
             className={styles.navLink}
-            onClick={() => router.push("/companies")}
-            title="Manage Companies"
+            onClick={() => setShowCompanySelector(true)}
+            title="Switch Company"
           >
             <span className={styles.navIcon}>🏢</span>
-            Companies
+            {selectedCompany ? selectedCompany.name : "Select Company"}
           </button>
           <button 
             className={styles.navLink}
-            onClick={() => router.push("/integrations/choose-provider")}
-            title="Integrations"
+            onClick={() => setShowIntegrationSelector(true)}
+            title="Manage Integrations"
           >
             <span className={styles.navIcon}>🔗</span>
-            Integrations
+            {selectedIntegrationExternalId ? "Integration" : "Add Integration"}
           </button>
           <button 
             className={styles.navLink}

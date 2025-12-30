@@ -22,11 +22,14 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   selectedCompany: CompanyInfo | null;
+  selectedIntegrationExternalId: string | null;
   login: (credentials: LoginRequest) => Promise<void>;
   register: (userData: UserCreateRequest) => Promise<void>;
   logout: () => Promise<void>;
   selectCompany: (company: CompanyInfo) => void;
   clearSelectedCompany: () => void;
+  selectIntegration: (externalId: string) => void;
+  clearSelectedIntegration: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -49,6 +52,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return null;
     }
   );
+
+  const [selectedIntegrationExternalId, setSelectedIntegrationExternalId] =
+    useState<string | null>(() => {
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("selected_integration_id");
+        return saved || null;
+      }
+      return null;
+    });
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -120,6 +132,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const selectIntegration = (externalId: string) => {
+    setSelectedIntegrationExternalId(externalId);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("selected_integration_id", externalId);
+    }
+  };
+
+  const clearSelectedIntegration = () => {
+    setSelectedIntegrationExternalId(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("selected_integration_id");
+    }
+  };
+
   const logout = async () => {
     try {
       // Call both logout endpoints to clear access and refresh tokens on server
@@ -132,6 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsAuthenticated(false);
       clearSelectedCompany();
+      clearSelectedIntegration();
       if (typeof window !== "undefined") {
         localStorage.removeItem("auth_state");
         window.location.href = "/";
@@ -145,11 +172,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated,
         isLoading,
         selectedCompany,
+        selectedIntegrationExternalId,
         login,
         register,
         logout,
         selectCompany,
         clearSelectedCompany,
+        selectIntegration,
+        clearSelectedIntegration,
       }}
     >
       {children}

@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import companyApi, { CompanyCreateRequest } from "@/lib/companyApi";
+import { useAuth } from "@/lib/auth/AuthContext";
 import styles from "./CreateCompany.module.css";
 
 interface CreateCompanyData {
@@ -18,6 +19,7 @@ export default function CreateCompanyPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { selectCompany } = useAuth();
 
   const handleChange =
     (field: keyof CreateCompanyData) =>
@@ -49,10 +51,17 @@ export default function CreateCompanyPage() {
         companyData.organization_number = formData.organization_number.trim();
       }
 
-      await companyApi.createCompany(companyData);
+      const company = await companyApi.createCompany(companyData);
 
-      // Company created successfully, redirect to main app
-      router.push("/?welcome=company-created");
+      // Auto-select the newly created company
+      selectCompany({
+        id: company.id,
+        name: company.name,
+        organization_number: company.organization_number,
+        userRole: "OWNER", // User who creates company is owner
+      });
+
+      router.push("/");
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred"
