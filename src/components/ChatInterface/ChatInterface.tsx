@@ -132,6 +132,12 @@ export default function ChatInterface() {
   }, [selectedCompany]);
 
   useEffect(() => {
+    // Clear messages and start new chat when company or integration changes
+    setCurrentSessionId(null);
+    setMessages([]);
+  }, [selectedCompany?.id, selectedCompanyIntegrationId]);
+
+  useEffect(() => {
     if (isAutoScrollingRef.current) {
       scrollToBottom();
     }
