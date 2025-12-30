@@ -38,12 +38,12 @@ export default function Sidebar({ selectedSessionId, onSelectSession, onNewChat,
   }, [refreshTrigger]);
 
   const loadSessions = async () => {
-    if (!selectedCompany) return;
+    if (!selectedCompany || !selectedCompanyIntegrationId) return;
 
     try {
       setLoading(true);
       setError(null);
-      const response = await chatSessionApi.getSessions(selectedCompany.id);
+      const response = await chatSessionApi.getSessions(selectedCompanyIntegrationId);
       setSessions(response.sessions);
     } catch (err) {
       console.error("Failed to load chat sessions:", err);

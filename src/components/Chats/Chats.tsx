@@ -13,7 +13,7 @@ interface ChatsProps {
 }
 
 export default function Chats({ selectedSessionId, onSelectSession, onNewChat }: ChatsProps) {
-  const { selectedCompany } = useAuth();
+  const { selectedCompany, selectedCompanyIntegrationId } = useAuth();
   const [sessions, setSessions] = useState<ChatSessionResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,12 +25,12 @@ export default function Chats({ selectedSessionId, onSelectSession, onNewChat }:
   }, [selectedCompany]);
 
   const loadSessions = async () => {
-    if (!selectedCompany) return;
+    if (!selectedCompany || !selectedCompanyIntegrationId) return;
 
     try {
       setLoading(true);
       setError(null);
-      const response = await chatSessionApi.getSessions(selectedCompany.id);
+      const response = await chatSessionApi.getSessions(selectedCompanyIntegrationId);
       setSessions(response.sessions);
     } catch (err) {
       console.error("Failed to load chat sessions:", err);

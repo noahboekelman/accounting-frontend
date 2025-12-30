@@ -6,19 +6,19 @@ import type {
 
 class ChatSessionApi {
   /**
-   * Get all chat sessions for the current user and specified company
+   * Get all chat sessions for the current user and specified company integration
    * 
-   * @param companyId - Company ID to filter sessions
+   * @param companyIntegrationId - Company integration ID to filter sessions
    * @param page - Page number (default: 1)
    * @param limit - Items per page (default: 100, max: 100)
    */
   async getSessions(
-    companyId: string,
+    companyIntegrationId: string,
     page: number = 1,
     limit: number = 100
   ): Promise<ChatSessionListResponse> {
     const params = new URLSearchParams({
-      company_id: companyId,
+      company_integration_id: companyIntegrationId,
       page: page.toString(),
       limit: limit.toString(),
     });
