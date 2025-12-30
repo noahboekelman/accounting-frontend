@@ -1,5 +1,6 @@
 "use client";
 
+import Snowfall from "react-snowfall";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -67,6 +68,9 @@ export default function Home() {
   // Show authenticated chat interface for logged-in users
   return (
     <>
+    <Snowfall
+    snowflakeCount={50}
+    />
       <CompanySelector
         isOpen={showCompanySelector}
         onClose={() => setShowCompanySelector(false)}
