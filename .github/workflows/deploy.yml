@@ -61,8 +61,7 @@ jobs:
                 azure_static_web_apps_api_token: ${{ steps.get_web_app_key.outputs.web_app_key }}
                 repo_token: ${{ secrets.GITHUB_TOKEN }}
                 action: "upload"
-                app_location: "/"
-                output_location: "out"
+                app_location: "out"
                 #deployment_environment: ${{ github.event.inputs.environment }}
               env:
                 NEXT_PUBLIC_API_BASE_URL: ${{ env.NEXT_PUBLIC_API_BASE_URL }}
