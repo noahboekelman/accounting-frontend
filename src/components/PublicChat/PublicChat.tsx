@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { streamFaqChat, FaqChatChunk } from "@/lib/faqChatClient";
+import { streamFaqChat } from "@/lib/faqChatClient";
+import { Chunk } from "@/components/ChatInterface/ChatInterface";
 import styles from "./PublicChat.module.css";
 
 interface Message {
@@ -55,8 +56,7 @@ export default function PublicChat() {
     try {
       const stream = await streamFaqChat(
         message,
-        conversationId,
-        (chunk: FaqChatChunk) => {
+        (chunk: Chunk) => {
           assistantContent += chunk.content;
           setMessages((prev) => {
             const newMessages = [...prev];
@@ -66,12 +66,12 @@ export default function PublicChat() {
             };
             return newMessages;
           });
-
-          // Store conversation ID if provided
-          if (chunk.metadata?.conversation_id && !conversationId) {
-            setConversationId(chunk.metadata.conversation_id);
-          }
         },
+        (newSessionId: string) => {
+          console.log("New FAQ session created:", newSessionId);
+          setConversationId(newSessionId);
+        },
+        conversationId || undefined,
         (error) => {
           console.error("Streaming error:", error);
           setMessages((prev) => {

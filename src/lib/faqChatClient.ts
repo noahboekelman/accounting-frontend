@@ -3,19 +3,15 @@
  * No authentication required - used for logged-out users.
  */
 
-export interface FaqChatChunk {
-  content: string;
-  metadata?: {
-    conversation_id?: string;
-  };
-}
+import { Chunk } from "@/components/ChatInterface/ChatInterface";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
 export async function streamFaqChat(
   message: string,
-  conversationId: string | null,
-  onChunk: (data: FaqChatChunk) => void,
+  onChunk: (data: Chunk) => void,
+  onNewSession: (newSessionId: string) => void,
+  sessionId?: string,
   onError?: (error: Error) => void
 ) {
   if (typeof window === "undefined" || typeof EventSource === "undefined") {
@@ -26,20 +22,29 @@ export async function streamFaqChat(
   const url = `${API_BASE_URL}/stream-faq-chat`;
   const queryParams = new URLSearchParams();
   queryParams.append("message", message);
-  if (conversationId) {
-    queryParams.append("conversation_id", conversationId);
+  if (sessionId) {
+    queryParams.append("thread_id", sessionId);
   }
   
   const urlWithParams = `${url}?${queryParams.toString()}`;
   
   const es = new EventSource(urlWithParams);
 
-  const onMessage = (e: MessageEvent) => {
+  let threadId: string = "";
+
+  const onAssistantChunk = (e: MessageEvent) => {
     try {
       const data = JSON.parse(e.data);
+
+      if (data.metadata && data.metadata.thread_id) {
+        if (!threadId) {
+          threadId = data.metadata.thread_id;
+        }
+      }
+
       onChunk(data);
     } catch (err) {
-      console.warn("Failed to parse message event", err);
+      console.warn("Failed to parse assistant_chunk event", err);
       try {
         es.close();
       } catch {}
@@ -47,6 +52,13 @@ export async function streamFaqChat(
   };
 
   const onDone = () => {
+    console.log("SSE stream done");
+    if (!sessionId && threadId) {
+      console.log("New FAQ session created with ID:", threadId);
+      setTimeout(() => {
+        onNewSession(threadId);
+      }, 2500);
+    }
     try {
       es.close();
     } catch {}
@@ -62,7 +74,7 @@ export async function streamFaqChat(
     } catch {}
   };
 
-  es.addEventListener("message", onMessage);
+  es.addEventListener("assistant_chunk", onAssistantChunk);
   es.addEventListener("done", onDone);
   es.addEventListener("error", handleError);
 
