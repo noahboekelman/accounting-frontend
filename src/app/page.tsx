@@ -3,13 +3,13 @@
 import Snowfall from "react-snowfall";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import ChatInterface from "@/components/ChatInterface";
 import PublicChat from "@/components/PublicChat";
 import { CompanySelector, IntegrationSelector } from "@/components";
 import styles from "./page.module.css";
 
-export default function Home() {
+function HomeContent() {
   const { isAuthenticated, isLoading, selectedCompany, selectedCompanyIntegrationId, selectIntegration } = useAuth();
   const searchParams = useSearchParams();
   const [welcomeMessage, setWelcomeMessage] = useState<string>("");
@@ -97,5 +97,17 @@ export default function Home() {
       )}
       <ChatInterface />
     </>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }

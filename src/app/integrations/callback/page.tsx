@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthContext";
 import httpClient from "@/lib/httpClient";
@@ -8,7 +8,7 @@ import styles from "./page.module.css";
 
 type CallbackStatus = "processing" | "success" | "error";
 
-export default function IntegrationCallbackPage() {
+function CallbackContent() {
   const [status, setStatus] = useState<CallbackStatus>("processing");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const searchParams = useSearchParams();
@@ -121,5 +121,19 @@ export default function IntegrationCallbackPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function IntegrationCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className={styles.container}>
+        <div className={styles.content}>
+          <div className={styles.spinner}></div>
+        </div>
+      </div>
+    }>
+      <CallbackContent />
+    </Suspense>
   );
 }
