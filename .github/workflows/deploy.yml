@@ -1,3 +1,5 @@
+name: Deploy Web App
+
 on:
     workflow_dispatch:
         inputs:
@@ -13,7 +15,12 @@ on:
 
 jobs:
     deploy:
+        environment: ${{ github.event.inputs.environment }}
         runs-on: ubuntu-latest
+        env:
+          FRONTEND_APP_NAME: ai-accounting-swa-${{ github.event.inputs.environment }}
+          RESOURCE_GROUP_NAME: ai-accounting-swa-${{ github.event.inputs.environment }}-rg
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
         steps:
             - name: Checkout repository
               uses: actions/checkout@v2
@@ -24,8 +31,8 @@ jobs:
             - name: Install dependencies
               run: npm install
             
-            - name: Get Widget Web App Key
-              id: get_widget_web_app_key
+            - name: Get Web App Key
+              id: get_web_app_key
               run: |
                 web_app_key=$(az staticwebapp secrets list \
                 --name ${{ env.FRONTEND_APP_NAME}} \
@@ -43,7 +50,7 @@ jobs:
             - name: Deploy Widget Web App
               uses: Azure/static-web-apps-deploy@v1
               with:
-                azure_static_web_apps_api_token: ${{ steps.get_widget_web_app_key.outputs.web_app_key }}
+                azure_static_web_apps_api_token: ${{ steps.get_web_app_key.outputs.web_app_key }}
                 repo_token: ${{ secrets.GITHUB_TOKEN }}
                 action: "upload"
                 app_location: "/"
